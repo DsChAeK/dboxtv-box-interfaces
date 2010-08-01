@@ -80,7 +80,7 @@
 //       All parsing is done via regex functionality of dboxTV and with a little
 //       'know how' it is very adaptable to other circumstances.
 //       dboxTV uses TRegExpr from Andrey V. Sorokin (http://anso.virtualave.net/)
-//       I recommend using "TestRExp.exe" to find the best way parsing data, if
+//       I recommend using "TestRegExp.exe" to find the best way parsing data, if
 //       it is working there, it will be working inside this dll.
 //       Plz have a look at UntRegEx.pas and Init() to understand how TRegExpr
 //       works and how to implement the dboxTV functions.
