@@ -26,7 +26,7 @@ unit UntHttpClient;
 interface
 
 uses
-  Windows, SysUtils,
+  SysUtils,
 
   UntDataDll;
 
@@ -40,9 +40,11 @@ type
     FGetURL_BIN        : TDLL_GetURL_BIN; // main http requests only for binary data
     FGetURL_EPG        : TDLL_GetURL_EPG; // epg http requests
 
+    APChar             : PChar; // temp. PChar
+
     constructor Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG : Pointer);reintroduce;
 
-    function BuildURL(aURL,aIP,aPort,Tag,Tagdata : ShortString):String;
+    function BuildURL(aURL,Tag,Tagdata : ShortString):String;
     function GetURL(aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
     function GetURL(aURL : ShortString): PChar; overload;
     function GetURL_BIN(aURL : ShortString): Pointer; overload;
@@ -74,11 +76,11 @@ implementation
  ******************************************************************************)
 constructor THttpClient.Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG : Pointer);
 begin
-  @FGetBoxData := aGetBoxData;
-  @FLog  := aLog;
-  @FGetURL  := aGetURL;
-  @FGetURL_BIN  := aGetURL_BIN;
-  @FGetURL_EPG  := aGetURL_EPG;
+  TMethod(FGetBoxData).Code := aGetBoxData;
+  TMethod(FLog).Code := aLog;
+  TMethod(FGetURL).Code := aGetURL;
+  TMethod(FGetURL_BIN).Code := aGetURL_BIN;
+  TMethod(FGetURL_EPG).Code := aGetURL_EPG;
 end;
 
 (*******************************************************************************
@@ -91,12 +93,12 @@ end;
  * RGW:
  *   real url
  ******************************************************************************)
-function THttpClient.BuildURL(aURL, aIP, aPort, Tag, TagData : ShortString):String;
+function THttpClient.BuildURL(aURL, Tag, TagData : ShortString):String;
 var
   MyURL : String;
 begin
 
-  MyURL := 'http://'+FGetBoxData.sIp+':'+FGetBoxData.sPort+aURL;
+  MyURL := 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL;
 
   if Tag <> '' then
     MyURL := ReplSubStr(MyURL, Tag, TagData);
@@ -136,27 +138,52 @@ end;
 
 function THttpClient.GetURL(aURL, Tag, Tagdata: ShortString): PChar;
 begin
-  Result := FGetURL(PChar(BuildURL(aURL,FGetBoxData.sIp,FGetBoxData.sPort,Tag,Tagdata)));
+  APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata)) + 1);
+  StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
+
+  Result := FGetURL(APChar);
+
+  StrDispose(APChar);
 end;
 
 function THttpClient.GetURL(aURL: ShortString): PChar;
 begin
-  Result := FGetURL(PChar('http://'+FGetBoxData.sIp+':'+FGetBoxData.sPort+aURL));
+  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL) + 1);
+  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
+
+  Result := FGetURL(APChar);
+
+  StrDispose(APChar);
 end;
 
 function THttpClient.GetURL_EPG(aURL, Tag, Tagdata: ShortString): PChar;
 begin
-  Result := FGetURL_EPG(PChar(BuildURL(aURL,FGetBoxData.sIp,FGetBoxData.sPort,Tag,Tagdata)));
+  APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata))+1);
+  StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
+
+  Result := FGetURL_EPG(APChar);
+
+  StrDispose(APChar);
 end;
 
 function THttpClient.GetURL_EPG(aURL: ShortString): PChar;
 begin
-  Result := FGetURL_EPG(PChar('http://'+FGetBoxData.sIp+':'+FGetBoxData.sPort+aURL));
+  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
+  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
+
+  Result := FGetURL_EPG(APChar);
+
+  StrDispose(APChar);
 end;
 
 function THttpClient.GetURL_BIN(aURL: ShortString): Pointer;
 begin
-  Result := FGetURL_BIN(PChar('http://'+FGetBoxData.sIp+':'+FGetBoxData.sPort+aURL));
+  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
+  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
+
+  Result := FGetURL_BIN(APChar);
+
+  StrDispose(APChar);
 end;
 
 end.
