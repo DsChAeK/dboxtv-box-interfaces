@@ -118,14 +118,17 @@ uses
   UntHttpClient in '..\UntHttpClient.pas',
   UntRegEx in '..\UntRegEx.pas';
 
+{$IFDEF WINDOWS}{$R dboxTV_neutrinohd.rc}{$ENDIF}
+{$LongStrings ON}
+
 {$R *.RES}
 
 // ##############################################################################################
 // ################################### info #####################################################
 // ##############################################################################################
 const
-  AUTHOR  = 'DsChAeK';            // author info for dboxtv about box
-  VERSION = 'v1';                 // version info for dboxtv about box
+  AUTHOR  = 'DsChAeK';               // author info for dboxtv about box
+  VERSION = 'v1';                    // version info for dboxtv about box
   BOXNAME = 'Coolstream NeutrinoHD'; // boxname info for dboxtv display
 
 // ##############################################################################################
@@ -172,12 +175,12 @@ begin
 
   try
     // set global function pointers
-    @GetBoxData := FktGetBoxData;
-    @Log := FktLog;
-    @AddBouquet := FktAddBouquet;
-    @AddChannel := FktAddChannel;
-    @AddChannelProgram := FktAddChannelProgram;
-    @SendTelnetCmd := FktSendTelnetCmd;
+    TMethod(GetBoxData).Code := FktGetBoxData;
+    TMethod(Log).Code := FktLog;
+    TMethod(AddBouquet).Code := FktAddBouquet;
+    TMethod(AddChannel).Code := FktAddChannel;
+    TMethod(AddChannelProgram).Code := FktAddChannelProgram;
+    TMethod(SendTelnetCmd).Code := FktSendTelnetCmd;
 
   except
     Result := false;
@@ -205,7 +208,7 @@ begin
 
     // create http client here
     if not Assigned(HttpClient) then
-      HttpClient := THttpClient.Create(@GetBoxData, @Log, FktGetURL, FktGetURL_BIN, FktGetURL_EPG);
+      HttpClient := THttpClient.Create(TMethod(GetBoxData).Code, TMethod(Log).Code, FktGetURL, FktGetURL_BIN, FktGetURL_EPG);
 
   except
     Result := false;
@@ -274,7 +277,7 @@ begin
     RegExChannels := nil;
     RegExServices := nil;
     HttpClient := nil;
-    
+
   except
     Result := false;
   end;
@@ -572,6 +575,7 @@ var
 begin
   MyStreamInfo.sAPID := '';
   MyStreamInfo.sALANG := '';
+  MyStreamInfo.iAPIDCnt := 0;
 
   // get stream pids
   sPids := HttpClient.GetURL(URL_DBOX_GETALLPIDS);
@@ -670,7 +674,7 @@ begin
       $0 [6 - 9]: 16:9
       $0 [11 - 17]: 50fps
       $0 [19 - 22]: MPEG stereo
-  *)  
+  *)
   RegEx.SetRegEx('.*[\r]', false);
 
   // execute regex
@@ -684,7 +688,7 @@ begin
   RegEx.ExecuteNext; // next regex result
   MyStreamInfo.sAudiotyp    := RegEx.GetMatch(0);
   MyStreamInfo.sBitrate     := '0';
-  
+
   Result := MyStreamInfo;
 end;
 
@@ -729,13 +733,13 @@ begin
 
   // http
   if not IsUDP then begin
-    sURL := 'http://'+GetBoxData.sIp+':31339/0,'+AStreamInfo.sPMT+','
-                                                +AStreamInfo.sVPID+',' ;
+    sURL := 'http://'+GetBoxData().sIp+':31339/0,'+AStreamInfo.sPMT+','
+                                                  +AStreamInfo.sVPID+',' ;
     // append audio pids
     sURL := sURL+AStreamInfo.sAPID;
   end
   else begin // udp
-    sURL := 'http://'+GetBoxData.sIp+':'+GetBoxData.sPort+URL_DBOX_UDP_START+' '+PcIP+' '+PcPort+' 0 '
+    sURL := 'http://'+GetBoxData().sIp+':'+GetBoxData().sPort+URL_DBOX_UDP_START+' '+PcIP+' '+PcPort+' 0 '
             +AStreamInfo.sPMT+' '
             +AStreamInfo.sVPID+' ';
 
@@ -968,7 +972,7 @@ end;
  *   -> use bouquets.xml and services.xml
  *   -> extract all channeldata from bouquets.xml (URL_DBOX_GETBOUQUETSXML)
  *   -> extract servicetyp (radio/tv) from services.xml (URL_DBOX_GETSERVICESXML)
-  *    
+ *
  * RGW:
  *   bouquet count
  ******************************************************************************)
@@ -980,6 +984,7 @@ var
   Bouquet : RBouquet;        // bouquet
   Channel : RChannel;        // channel
   sTemp : String;            // temp. string
+  APChar : PChar;            // temp. pchar
 
   Bouquets : TStringList;    // bouquet list
   Services : TStringList;    // services list
@@ -994,6 +999,8 @@ begin
   IsBouquetAdded := false;
   Bouquets := TStringList.Create;
   Services := TStringList.Create;
+  sServiceList := '';
+  sTemp := '';
 
 try
   // read services
@@ -1085,7 +1092,12 @@ try
                               '/>', // 'sat' or nothing, -> unimportant
                               false);
 
-   RegExChannels.Execute(PChar(RegEx.GetMatch(4)));
+   APChar := StrAlloc(length(RegEx.GetMatch(4)) + 1);
+   StrPCopy(APChar, RegEx.GetMatch(4));
+
+   RegExChannels.Execute(APChar);
+
+   StrDispose(APChar);
 
     while (true) do begin
       // check if there are channels
@@ -1115,7 +1127,7 @@ try
 
         except
         end;
-        
+
         // set indizes
         Channel.BouquetIndex := iInxBouquet;
         Channel.Index := iInxChannel;
@@ -1143,13 +1155,19 @@ try
         $1 [7572 - 7574]: MGM
         $2 [7591 - 7592]: 1
           OR
-        $2 [7591 - 7592]: 0001  
+        $2 [7591 - 7592]: 0001
       *)
-      RegExServices.SetRegEx(PChar('<S i="'+RegExChannels.GetMatch(1)+'" '+
+      APChar := StrAlloc(length('<S i="'+RegExChannels.GetMatch(1)+'" '+
                                    'n="(.*?)" '+
-                                   't="(.*?)".*?'),
-                                  false);
-      RegExServices.Execute(Pchar(sTemp));
+                                   't="(.*?)".*?') + 1);
+      StrPCopy(APChar, '<S i="'+RegExChannels.GetMatch(1)+'" '+
+                                   'n="(.*?)" '+
+                                   't="(.*?)".*?');
+
+      RegExServices.SetRegEx(APChar, false);
+      RegExServices.Execute(APChar);
+
+      StrDispose(APChar);
 
       // if nothing found, set tv mode as default (or ignore channel?)
       if RegExServices.GetMatch(0) = '' then begin
@@ -1223,7 +1241,7 @@ finally
   // free mem
   if Assigned(RegExServices) then
     RegExServices.Free;
-    
+
   if Assigned(RegExChannels) then
     RegExChannels.Free;
 
@@ -1270,6 +1288,7 @@ var
   ChannelProgram : RChannelProgram;
 
   sEPGData : String;
+  APChar : PChar;
 begin
   // init
   Counter := 0;
@@ -1332,7 +1351,7 @@ begin
       $6 [299 - 303]: 12:30
       $7 [332 - 334]: 150
       $8 [375 - 403]: Gute Zeiten, schlechte Zeiten
-      $9 [440 - 439]: 
+      $9 [440 - 439]:
       $10 [470 - 508]: - Wiederholung der Folgen 4535 - 4539 -
   *)
   RegEx.SetRegEx('<prog>.*?<eventid>(.*?)</eventid>.*?'+
@@ -1366,7 +1385,12 @@ begin
       if ChannelProgram.sInfo1 = '' then
         ChannelProgram.sInfo1 := '-';
 
-      ChannelProgram.sInfo2 := StrNew(PChar(RegEx.GetMatch(10)));
+      APChar := StrAlloc(length(RegEx.GetMatch(10)) + 1);
+      StrPCopy(APChar, RegEx.GetMatch(10));
+
+      ChannelProgram.sInfo2 := StrNew(APChar);
+
+      StrDispose(APChar);
 
     except
     end;
@@ -1383,7 +1407,7 @@ begin
 
   Result := Counter;
 end;
-   
+
 // ##############################################################################################
 // ################################### export functions #########################################
 // ##############################################################################################
@@ -1391,7 +1415,7 @@ end;
 exports
   Init,
   InitHttp,
-  InitRegEx,    
+  InitRegEx,
   Close,
   Check,
 
@@ -1403,7 +1427,7 @@ exports
   GetRecordMode,
   GetSPTSMode,
   SetSPTSMode,
-  SetMessageOnTV,
+  SetMessageOnTv,
   SetRCLock,
   SetRCUnlock,
   GetBoxMode,

@@ -65,9 +65,9 @@ unit UntRegEx;
 interface
 
 uses
-  Windows, SysUtils, Classes,
+  SysUtils, Classes,
 
-  UntHelpers, UntDataDLL;
+  UntDataDLL;
 
 type
   // regex
@@ -111,13 +111,13 @@ implementation
  ******************************************************************************)
 constructor TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext : Pointer);
 begin
-  FMatches      := TStringList.Create();
+  FMatches := TStringList.Create();
 
-  @FNewRegEx    := FktNewRegEx;
-  @FSetRegEx    := FktSetRegEx;
-  @FGetMatch    := FktGetMatch;
-  @FExecute     := FktExecute;
-  @FExecuteNext := FktExecuteNext;
+  TMethod(FNewRegEx).Code := FktNewRegEx;
+  TMethod(FSetRegEx).Code := FktSetRegEx;
+  TMethod(FGetMatch).Code := FktGetMatch;
+  TMethod(FExecute).Code := FktExecute;
+  TMethod(FExecuteNext).Code := FktExecuteNext;
 
   FID := FNewRegEx();
 end;

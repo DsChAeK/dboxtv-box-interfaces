@@ -27,6 +27,8 @@ interface
 
 uses  SysUtils;
 
+{$LongStrings ON}
+
 procedure SplitString (TheText, Delim : String; var Key, Value : String);
 function  ReplSubStr (TheString, OldSubStr, NewSubStr : String) : String;
 
