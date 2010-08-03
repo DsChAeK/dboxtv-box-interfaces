@@ -736,19 +736,19 @@ begin
   if not IsUDP then begin
     // tv mode
     if IsTV then begin
-      sURL := 'http://'+GetBoxData.sIp+':31339/0,'+AStreamInfo.sPMT+','
+      sURL := 'http://'+GetBoxData().sIp+':31339/0,'+AStreamInfo.sPMT+','
                                                   +AStreamInfo.sVPID+',' ;
     end
     else begin
       // radio mode
-      sURL := 'http://'+GetBoxData.sIp+':31338/';
+      sURL := 'http://'+GetBoxData().sIp+':31338/';
     end;
 
     // append audio pids
     sURL := sURL+AStreamInfo.sAPID;
   end
   else begin // udp
-    sURL := 'http://'+GetBoxData.sIp+':'+GetBoxData.sPort+URL_DBOX_UDP_START+' '+PcIP+' '+PcPort+' 0 '
+    sURL := 'http://'+GetBoxData().sIp+':'+GetBoxData().sPort+URL_DBOX_UDP_START+' '+PcIP+' '+PcPort+' 0 '
             +AStreamInfo.sPMT+' '
             +AStreamInfo.sVPID+' ';
 
