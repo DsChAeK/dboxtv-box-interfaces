@@ -1165,7 +1165,7 @@ try
                                    't="(.*?)".*?');
 
       RegExServices.SetRegEx(APChar, false);
-      RegExServices.Execute(APChar);
+      RegExServices.Execute(PChar(sTemp));
 
       StrDispose(APChar);
 
