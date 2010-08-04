@@ -28,7 +28,9 @@
 unit UntURL;
 
 interface
- 
+
+{$LongStrings ON}
+
 const
 
   // tag, a template to be replaced
