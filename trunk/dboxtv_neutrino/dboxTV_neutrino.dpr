@@ -1171,7 +1171,7 @@ try
                                    'service_type="(.*?)".*?>') + 1);
 
       RegExServices.SetRegEx(APChar,false);
-      RegExServices.Execute(APChar);
+      RegExServices.Execute(PChar(sTemp));
 
       StrDispose(APChar);
 
