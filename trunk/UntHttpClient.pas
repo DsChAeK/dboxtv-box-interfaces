@@ -30,6 +30,8 @@ uses
 
   UntDataDll;
 
+{$LongStrings ON}
+
 type
   // http client
   THttpClient = class(TObject)

@@ -69,6 +69,8 @@ uses
 
   UntDataDLL;
 
+{$LongStrings ON}
+
 type
   // regex
   TRegEx = class(TObject)
