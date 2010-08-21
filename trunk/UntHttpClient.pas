@@ -42,8 +42,6 @@ type
     FGetURL_BIN        : TDLL_GetURL_BIN; // main http requests only for binary data
     FGetURL_EPG        : TDLL_GetURL_EPG; // epg http requests
 
-    APChar             : PChar; // temp. PChar
-
     constructor Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG : Pointer);reintroduce;
 
     function BuildURL(aURL,Tag,Tagdata : ShortString):String;
@@ -139,6 +137,8 @@ begin
 end;
 
 function THttpClient.GetURL(aURL, Tag, Tagdata: ShortString): PChar;
+var
+  APChar : PChar;
 begin
   APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata)) + 1);
   StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
@@ -149,6 +149,8 @@ begin
 end;
 
 function THttpClient.GetURL(aURL: ShortString): PChar;
+var
+  APChar : PChar;
 begin
   APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL) + 1);
   StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
@@ -159,6 +161,8 @@ begin
 end;
 
 function THttpClient.GetURL_EPG(aURL, Tag, Tagdata: ShortString): PChar;
+var
+  APChar : PChar;
 begin
   APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata))+1);
   StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
@@ -169,6 +173,8 @@ begin
 end;
 
 function THttpClient.GetURL_EPG(aURL: ShortString): PChar;
+var
+  APChar : PChar;
 begin
   APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
   StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
@@ -179,6 +185,8 @@ begin
 end;
 
 function THttpClient.GetURL_BIN(aURL: ShortString): Pointer;
+var
+  APChar : PChar;
 begin
   APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
   StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);

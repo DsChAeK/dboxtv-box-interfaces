@@ -807,7 +807,7 @@ begin
 
   // if no subchannel, or no alternative zap method
   if not IsSubChannel or not UseAltSubChannelZap then begin
-    // zsp the normal way
+    // zap the normal way
     sTemp := HttpClient.GetURL(URL_DBOX_ZAPTO_CHAN, TAG_DATA, ChannelID);
   end
   else begin
@@ -1169,6 +1169,9 @@ try
       APChar := StrAlloc(length('<channel service_id="'+RegExChannels.GetMatch(1)+'" '+
                                    'name="(.*?)" '+
                                    'service_type="(.*?)".*?>') + 1);
+      StrPCopy(APChar, '<channel service_id="'+RegExChannels.GetMatch(1)+'" '+
+                                   'name="(.*?)" '+
+                                   'service_type="(.*?)".*?>');
 
       RegExServices.SetRegEx(APChar,false);
       RegExServices.Execute(PChar(sTemp));
@@ -1182,12 +1185,14 @@ try
       else begin
         try
           // mode, 1=tv 0=radio
-          if StrToInt(RegExServices.GetMatch(2)) = 1 then begin
-            Channel.Mode := true;
-          end
-          else begin
-            Channel.Mode := false;
-          end;
+          if RegExServices.GetMatch(2) <> '' then begin
+            if StrToInt(RegExServices.GetMatch(2)) = 1 then begin
+              Channel.Mode := true;
+            end
+            else begin
+              Channel.Mode := false;
+            end;
+          end;  
         except
         end;
       end;
