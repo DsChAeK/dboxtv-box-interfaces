@@ -1238,12 +1238,6 @@ try
   Result := iInxBouquet;
 
 finally
-  // free mem
-  if Assigned(RegExServices) then
-    RegExServices.Free;
-
-  if Assigned(RegExChannels) then
-    RegExChannels.Free;
 
   Bouquets.Free;
   Services.Free;
