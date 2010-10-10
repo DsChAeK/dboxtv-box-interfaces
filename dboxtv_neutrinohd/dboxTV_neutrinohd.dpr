@@ -673,7 +673,7 @@ begin
       $0 [1 - 4]: 480x576
       $0 [6 - 9]: 16:9
       $0 [11 - 17]: 50fps
-      $0 [19 - 22]: MPEG stereo
+      $0 [19 - 22]: MPEG stereo (48000)
   *)
   RegEx.SetRegEx('.*[\r]', false);
 
@@ -687,7 +687,7 @@ begin
   MyStreamInfo.sFramerate   := RegEx.GetMatch(0);
   RegEx.ExecuteNext; // next regex result
   MyStreamInfo.sAudiotyp    := RegEx.GetMatch(0);
-  MyStreamInfo.sBitrate     := '0';
+  MyStreamInfo.sBitrate     := '-';
 
   Result := MyStreamInfo;
 end;
