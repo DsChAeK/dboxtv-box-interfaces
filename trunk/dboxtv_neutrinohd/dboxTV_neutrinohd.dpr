@@ -1037,7 +1037,7 @@ try
                        <S i="002a" n="13th Street" t="0001" on="0085" s="192" frq="12070"/>
                        <S i="0024" n="SciFi" t="0011" on="0085" s="192" frq="11758"/>
   *)
-  RegEx.SetRegEx('<Bouquet name="(.*?)" '+
+  RegEx.SetRegEx('<Bouquet.*?name="(.*?)" '+
                           'hidden="(.*?)" '+
                           'locked="(.*?)">'+
                           '(.*?)'+ // all Channels!

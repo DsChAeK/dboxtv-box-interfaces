@@ -1026,30 +1026,27 @@ try
   // ### extract bouquets ###
   (*
     Text:
-     <Bouquet type="0" bouquet_id="0000" name="Favorites Tv" hidden="0" locked="0">
+     <Bouquet name="Favorites Tv" hidden="0" locked="0">
        <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
        <channel serviceID="6d66" name="ZDF" tsid="0437" onid="0001" sat="192"/>
      </Bouquet>
 
      RegEx:
-       <Bouquet type="(.*?)" bouquet_id="(.*?)" name="(.*?)" hidden="(.*?)" locked="(.*?)">(.*?)</Bouquet>
+       <Bouquet.*?name="(.*?)" hidden="(.*?)" locked="(.*?)">(.*?)</Bouquet>
 
      Result:
-       $0 [6 - 268]: <Bouquet type="0" bouquet_id="0000" name="Favorites Tv" hidden="0" locked="0">
+      $0 [1 - 231]: <Bouquet name="Favorites Tv" hidden="0" locked="0">
              <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
              <channel serviceID="6d66" name="ZDF" tsid="0437" onid="0001" sat="192"/>
-           </Bouquet>
-       $1 [21 - 21]: 0
-       $2 [36 - 39]: 0000
-       $3 [48 - 59]: Favorites Tv
-       $4 [70 - 70]: 0
-       $5 [81 - 81]: 0
-       $6 [84 - 258]:
+      </Bouquet>
+      $1 [16 - 27]: Favorites Tv
+      $2 [38 - 38]: 0
+      $3 [49 - 49]: 0
+      $4 [52 - 221]:
              <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
              <channel serviceID="6d66" name="ZDF" tsid="0437" onid="0001" sat="192"/>
   *)
-  RegEx.SetRegEx('<Bouquet type="(.*?)" '+
-                          'bouquet_id="(.*?)" '+
+  RegEx.SetRegEx('<Bouquet.*?'+
                           'name="(.*?)" '+
                           'hidden="(.*?)" '+
                           'locked="(.*?)">'+
@@ -1061,7 +1058,7 @@ try
 
   while (true) do begin
     // skip hidden bouquets
-    if RegEx.GetMatch(4) = '1' then begin
+    if RegEx.GetMatch(2) = '1' then begin
       if (not RegEx.ExecuteNext) then
         break
       else
@@ -1073,10 +1070,10 @@ try
 
     // extract and build bouquet name
     if (Bouquet.Index > 8) then begin
-      Bouquet.Name := IntToStr(Bouquet.Index+1)+'. '+RegEx.GetMatch(3);
+      Bouquet.Name := IntToStr(Bouquet.Index+1)+'. '+RegEx.GetMatch(1);
     end
     else begin
-      Bouquet.Name := '0'+IntToStr(Bouquet.Index+1)+'. '+RegEx.GetMatch(3);
+      Bouquet.Name := '0'+IntToStr(Bouquet.Index+1)+'. '+RegEx.GetMatch(1);
     end;
 
     // ### extract channel data ###
@@ -1101,8 +1098,8 @@ try
                                     'onid="(.*?)"'+
                                     '(.*?)', // 'sat' or nothing, -> unimportant
                                     false);
-   APChar := StrAlloc(length(RegEx.GetMatch(6)) + 1);
-   StrPCopy(APChar, RegEx.GetMatch(6));
+   APChar := StrAlloc(length(RegEx.GetMatch(4)) + 1);
+   StrPCopy(APChar, RegEx.GetMatch(4));
 
    RegExChannels.Execute(APChar);
 
