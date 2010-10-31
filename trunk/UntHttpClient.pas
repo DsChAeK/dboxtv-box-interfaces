@@ -64,12 +64,11 @@ implementation
  *   constructor, init
  *
  * PARAMS:
- *   IP        : ip
- *   Port      : port
- *   User      : user
- *   Pass      : pass
- *   Log       : pointer to log function
- *   DoLogHttp : true = log http answers
+ *   aGetBoxData  : pointer to boxdata function
+ *   aLog         : pointer to log function
+ *   aGetURL      : pointer to http function for normal urls
+ *   aGetURL_BIN  : pointer to http function for binary data
+ *   aGetURL_EPG  : pointer to http function for epg
  *
  * RGW:
  *   none
@@ -88,7 +87,9 @@ end;
  *   build a url and replaces tag by tagdata
  *
  * PARAMS:
- *   URL : url without 'http://ip:port'
+ *   aURL : url without 'http://ip:port'
+ *   Tag  : replaced by data
+ *   Data : inserted data
  *
  * RGW:
  *   real url
@@ -136,6 +137,18 @@ begin
   Result := Result + TheString;
 end;
 
+(*******************************************************************************
+ * INFO:
+ *   get data from url
+ *
+ * PARAMS:
+ *   aURL    : url without 'http://ip:port'
+ *   Tag     : tag
+ *   Tagdata : tag data
+ *
+ * RGW:
+ *   data (ascii)
+ ******************************************************************************)
 function THttpClient.GetURL(aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
@@ -148,6 +161,16 @@ begin
   StrDispose(APChar);
 end;
 
+(*******************************************************************************
+ * INFO:
+ *   get data from url
+ *
+ * PARAMS:
+ *   aURL : url without 'http://ip:port'
+ *
+ * RGW:
+ *   data (ascii)
+ ******************************************************************************)
 function THttpClient.GetURL(aURL: ShortString): PChar;
 var
   APChar : PChar;
@@ -160,6 +183,18 @@ begin
   StrDispose(APChar);
 end;
 
+(*******************************************************************************
+ * INFO:
+ *   get epg data from url, USE ONLY FOR EPG DATA!
+ *
+ * PARAMS:
+ *   aURL    : url without 'http://ip:port'
+ *   Tag     : tag
+ *   Tagdata : tag data
+ *
+ * RGW:
+ *   epg data (ascii)
+ ******************************************************************************)
 function THttpClient.GetURL_EPG(aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
@@ -172,6 +207,16 @@ begin
   StrDispose(APChar);
 end;
 
+(*******************************************************************************
+ * INFO:
+ *   get epg data from url, USE ONLY FOR EPG DATA!
+ *
+ * PARAMS:
+ *   aURL : url without 'http://ip:port'
+ *
+ * RGW:
+ *   epg data (ascii)
+ ******************************************************************************)
 function THttpClient.GetURL_EPG(aURL: ShortString): PChar;
 var
   APChar : PChar;
@@ -184,6 +229,16 @@ begin
   StrDispose(APChar);
 end;
 
+(*******************************************************************************
+ * INFO:
+ *   get binary data from url
+ *
+ * PARAMS:
+ *   aURL : url without 'http://ip:port'
+ *
+ * RGW:
+ *   binary data from http answer
+ ******************************************************************************)
 function THttpClient.GetURL_BIN(aURL: ShortString): Pointer;
 var
   APChar : PChar;
