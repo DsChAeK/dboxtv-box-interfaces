@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="\"/>
+    <Version Value="7"/>
+    <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <TargetFileExt Value=".exe"/>
+      <UseXPManifest Value="True"/>
+      <ActiveEditorIndexAtStart Value="0"/>
+    </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <Units Count="6">
+      <Unit0>
+        <Filename Value="dboxTV_neutrino.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="dboxTV_neutrino"/>
+        <CursorPos X="56" Y="751"/>
+        <TopLine Value="722"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="UntURL.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UntURL"/>
+        <UsageCount Value="20"/>
+        <SyntaxHighlighter Value="Text"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\UntRegEx.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UntRegEx"/>
+        <UsageCount Value="20"/>
+        <SyntaxHighlighter Value="Text"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\UntDataDLL.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UntDataDLL"/>
+        <UsageCount Value="20"/>
+        <SyntaxHighlighter Value="Text"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\UntHelpers.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UntHelpers"/>
+        <UsageCount Value="20"/>
+        <SyntaxHighlighter Value="Text"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\UntHttpClient.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UntHttpClient"/>
+        <UsageCount Value="20"/>
+        <SyntaxHighlighter Value="Text"/>
+      </Unit5>
+    </Units>
+    <JumpHistory Count="4" HistoryIndex="3">
+      <Position1>
+        <Filename Value="dboxTV_neutrino.lpr"/>
+        <Caret Line="1448" Column="5" TopLine="1415"/>
+      </Position1>
+      <Position2>
+        <Filename Value="dboxTV_neutrino.lpr"/>
+        <Caret Line="120" Column="1" TopLine="106"/>
+      </Position2>
+      <Position3>
+        <Filename Value="dboxTV_neutrino.lpr"/>
+        <Caret Line="1440" Column="13" TopLine="1414"/>
+      </Position3>
+      <Position4>
+        <Filename Value="dboxTV_neutrino.lpr"/>
+        <Caret Line="120" Column="50" TopLine="103"/>
+      </Position4>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="8"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)\"/>
+      <OtherUnitFiles Value="E:\P\dboxTV\dboxTV_Box_Interface_DLLs\trunk\"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <ExecutableType Value="Library"/>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
