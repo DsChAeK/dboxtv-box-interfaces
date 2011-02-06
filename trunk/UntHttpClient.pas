@@ -44,13 +44,13 @@ type
 
     constructor Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG : Pointer);reintroduce;
 
-    function BuildURL(aURL,Tag,Tagdata : ShortString):String;
-    function GetURL(aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
-    function GetURL(aURL : ShortString): PChar; overload;
-    function GetURL_BIN(aURL : ShortString): Pointer; overload;
+    function BuildURL(BoxID : Integer; aURL,Tag,Tagdata : ShortString):String;
+    function GetURL(BoxID : Integer; aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
+    function GetURL(BoxID : Integer; aURL : ShortString): PChar; overload;
+    function GetURL_BIN(BoxID : Integer; aURL : ShortString): Pointer; overload;
 
-    function GetURL_EPG(aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
-    function GetURL_EPG(aURL : ShortString): PChar; overload;
+    function GetURL_EPG(BoxID : Integer; aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
+    function GetURL_EPG(BoxID : Integer; aURL : ShortString): PChar; overload;
 
     // string handling
     function ReplSubStr (TheString, OldSubStr, NewSubStr : ShortString) : ShortString;
@@ -94,12 +94,12 @@ end;
  * RGW:
  *   real url
  ******************************************************************************)
-function THttpClient.BuildURL(aURL, Tag, TagData : ShortString):String;
+function THttpClient.BuildURL(BoxID : Integer; aURL, Tag, TagData : ShortString):String;
 var
   MyURL : String;
 begin
 
-  MyURL := 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL;
+  MyURL := 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL;
 
   if Tag <> '' then
     MyURL := ReplSubStr(MyURL, Tag, TagData);
@@ -149,14 +149,14 @@ end;
  * RGW:
  *   data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL(aURL, Tag, Tagdata: ShortString): PChar;
+function THttpClient.GetURL(BoxID : Integer; aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata)) + 1);
-  StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
+  APChar := StrAlloc(length(BuildURL(BoxID, aURL,Tag,Tagdata)) + 1);
+  StrPCopy(APChar, BuildURL(BoxID, aURL,Tag,Tagdata));
 
-  Result := FGetURL(APChar);
+  Result := FGetURL(BoxID, APChar);
 
   StrDispose(APChar);
 end;
@@ -171,14 +171,14 @@ end;
  * RGW:
  *   data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL(aURL: ShortString): PChar;
+function THttpClient.GetURL(BoxID : Integer; aURL: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL) + 1);
-  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
+  APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
+  StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
 
-  Result := FGetURL(APChar);
+  Result := FGetURL(BoxID, APChar);
 
   StrDispose(APChar);
 end;
@@ -195,14 +195,14 @@ end;
  * RGW:
  *   epg data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL_EPG(aURL, Tag, Tagdata: ShortString): PChar;
+function THttpClient.GetURL_EPG(BoxID : Integer; aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata))+1);
-  StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
+  APChar := StrAlloc(length(BuildURL(BoxID, aURL,Tag,Tagdata))+1);
+  StrPCopy(APChar, BuildURL(BoxID, aURL,Tag,Tagdata));
 
-  Result := FGetURL_EPG(APChar);
+  Result := FGetURL_EPG(BoxID, APChar);
 
   StrDispose(APChar);
 end;
@@ -217,14 +217,14 @@ end;
  * RGW:
  *   epg data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL_EPG(aURL: ShortString): PChar;
+function THttpClient.GetURL_EPG(BoxID : Integer; aURL: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
-  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
+  APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL)+1);
+  StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
 
-  Result := FGetURL_EPG(APChar);
+  Result := FGetURL_EPG(BoxID, APChar);
 
   StrDispose(APChar);
 end;
@@ -239,14 +239,14 @@ end;
  * RGW:
  *   binary data from http answer
  ******************************************************************************)
-function THttpClient.GetURL_BIN(aURL: ShortString): Pointer;
+function THttpClient.GetURL_BIN(BoxID : Integer; aURL: ShortString): Pointer;
 var
   APChar : PChar;
 begin
-  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
-  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
+  APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL)+1);
+  StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
 
-  Result := FGetURL_BIN(APChar);
+  Result := FGetURL_BIN(BoxID, APChar);
 
   StrDispose(APChar);
 end;
