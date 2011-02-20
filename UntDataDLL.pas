@@ -142,7 +142,7 @@ type
     TDLL_GetMatch = function (iID : Integer; iNr : Integer) : PChar of object;
     TDLL_Execute = function (iID : Integer; Text : PChar) : Integer of object;
     TDLL_ExecuteNext = function (iID : Integer) : ByteBool of object;
-    TDLL_SendTelnetCmd = function(BoxID : Integer; sCmd : PChar; iWait : Integer):ByteBool of object;
+    TDLL_SendTelnetCmd = function(BoxID : Integer; sCmd : ShortString; iWait : Integer):ByteBool of object;
 
 implementation
 
