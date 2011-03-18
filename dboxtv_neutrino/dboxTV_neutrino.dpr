@@ -149,6 +149,7 @@ var
   AddBouquet        : TDLL_AddBouquet;        // dboxTV function to add a bouquet
   AddChannel        : TDLL_AddChannel;        // dboxTV function to add a channel
   AddChannelProgram : TDLL_AddChannelProgram; // dboxTV function to add a channel program
+  FreePChar         : TDLL_FreePChar;         // dboxTV function to dispose pchar mem
 
 // ###########################################################################
 // ############################ handling functions ###########################
@@ -165,11 +166,12 @@ var
  *   FktAddChannel        : pointer to dboxTV add channel function
  *   FktAddChannelProgram : pointer to dboxTV add channel program function
  *   FktSendTelnetCmd     : pointer to dboxTV send telnet command function
+ *   FktFreePChar         : pointer to function which dispose pchar mem
  *
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function Init (FktGetBoxData, FktLog, FktAddBouquet, FktAddChannel, FktAddChannelProgram, FktSendTelnetCmd : Pointer):ByteBool; stdcall;
+function Init (FktGetBoxData, FktLog, FktAddBouquet, FktAddChannel, FktAddChannelProgram, FktSendTelnetCmd, FktFreePChar : Pointer):ByteBool; stdcall;
 begin
   Result := true;
 
@@ -181,6 +183,7 @@ begin
     TMethod(AddChannel).Code := FktAddChannel;
     TMethod(AddChannelProgram).Code := FktAddChannelProgram;
     TMethod(SendTelnetCmd).Code := FktSendTelnetCmd;
+    TMethod(FreePChar).Code := FktFreePChar;
 
   except
     Result := false;
@@ -208,7 +211,7 @@ begin
 
     // create http client here
     if not Assigned(HttpClient) then
-      HttpClient := THttpClient.Create(TMethod(GetBoxData).Code, TMethod(Log).Code, FktGetURL, FktGetURL_BIN, FktGetURL_EPG);
+      HttpClient := THttpClient.Create(TMethod(GetBoxData).Code, TMethod(Log).Code, FktGetURL, FktGetURL_BIN, FktGetURL_EPG, @FreePChar);
 
   except
     Result := false;
@@ -237,11 +240,11 @@ begin
   try
     // create needed regex here
     if RegEx = nil then
-      RegEx := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext);
+      RegEx := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, @FreePChar);
     if not Assigned(RegExChannels) then
-      RegExChannels := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext);
+      RegExChannels := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, @FreePChar);
     if not Assigned(RegExServices) then
-      RegExServices := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext);
+      RegExServices := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, @FreePChar);
 
   except
     Result := false;
@@ -1385,6 +1388,7 @@ begin
       ChannelProgram.sTitle     := RegEx.GetMatch(8);
       ChannelProgram.sTitle     := ReplSubStr(ChannelProgram.sTitle, ''#$B'', ''); // don't know the reason anymore
       ChannelProgram.sInfo1     := RegEx.GetMatch(9);
+
       if ChannelProgram.sInfo1 = '' then
         ChannelProgram.sInfo1 := '-';
 
@@ -1392,13 +1396,15 @@ begin
       StrPCopy(APChar, RegEx.GetMatch(10));
 
       ChannelProgram.sInfo2 := StrNew(APChar);
-
-      StrDispose(APChar);
     except
     end;
 
     // add channel program to a channel
     i := AddChannelProgram(BoxID, BouquetIndex, ChannelIndex, ChannelProgram);
+
+    // free sInfo2 data after add!
+    StrDispose(APChar);
+    StrDispose(ChannelProgram.sInfo2);
 
     if (i=1) then
       Inc(Counter);

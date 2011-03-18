@@ -135,6 +135,7 @@ type
     TDLL_GetURL = function (BoxID : Integer; URL : PChar):PChar of object;
     TDLL_GetURL_BIN = function (BoxID : Integer; URL : PChar):Pointer of object;
     TDLL_GetURL_EPG = function (BoxID : Integer; URL : PChar):PChar of object;
+    TDLL_FreePChar = function (ToFree : PChar):ByteBool of object;
 
     // regex engine
     TDLL_NewRegEx = function : Integer of object;
