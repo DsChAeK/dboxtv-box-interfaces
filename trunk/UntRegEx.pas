@@ -82,16 +82,17 @@ type
     FGetMatch    : TDLL_GetMatch;     // get match by index
     FExecute     : TDLL_Execute;      // execute regex
     FExecuteNext : TDLL_ExecuteNext;  // execute next regex
+    FFreePChar   : TDLL_FreePChar;    // free pchar mem from dboxTV
 
     FMatches     : TStringList;       // storage for all matches of one FExecute or FExecuteNext
   public
     function  NewRegEx() : Integer;
     procedure SetRegEx(RegEx : pChar; ModifierS : ByteBool);
     function  GetMatch(iNr : Integer) : String;
-    function  Execute(Text : pChar) : Integer; // -> counter
+    function  Execute(Text : PChar) : Integer; // -> counter
     function  ExecuteNext() : ByteBool;
 
-    constructor Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext : Pointer); reintroduce;
+    constructor Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, FktFreePChar : Pointer); reintroduce;
   end;
 
 implementation
@@ -111,7 +112,7 @@ implementation
  * RGW:
  *   none
  ******************************************************************************)
-constructor TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext : Pointer);
+constructor TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, FktFreePChar : Pointer);
 begin
   FMatches := TStringList.Create();
 
@@ -120,6 +121,7 @@ begin
   TMethod(FGetMatch).Code := FktGetMatch;
   TMethod(FExecute).Code := FktExecute;
   TMethod(FExecuteNext).Code := FktExecuteNext;
+  TMethod(FFreePChar).Code := FktFreePChar;
 
   FID := FNewRegEx();
 end;
@@ -137,6 +139,8 @@ end;
 function TRegEx.Execute(Text: PChar) : Integer;
 var
   i : Integer;
+  sMatch : PChar;
+  sTemp : String;
 begin
   Result := FExecute(FID, Text);
 
@@ -145,7 +149,15 @@ begin
 
   // store all matches
   for i := 0 to Result-1 do begin
-    FMatches.Add(StrNew(FGetMatch(FID, i)));
+    sTemp := '';
+    sMatch := FGetMatch(FID, i);
+
+    if sMatch <> nil then begin
+      sTemp := sMatch;
+      FFreePChar(sMatch);
+    end;
+
+    FMatches.Add(sTemp);
   end;
 end;
 
@@ -160,17 +172,27 @@ end;
 function TRegEx.ExecuteNext : ByteBool;
 var
   i, iCnt : Integer;
+  sMatch : PChar;
+  sTemp : String;
 begin
   // execute next
   Result := FExecuteNext(FID);
 
   // clear all matches
-  iCnt := FMatches.Count; // always the same amount as first
+  iCnt := FMatches.Count; // is always the first time amount
   FMatches.Clear;
 
   // store all matches
   for i := 0 to iCnt-1 do begin
-    FMatches.Add(StrNew(FGetMatch(FID, i)));
+    sTemp := '';
+    sMatch := FGetMatch(FID, i);
+
+    if sMatch <> nil then begin
+      sTemp := sMatch;
+      FFreePChar(sMatch);
+    end;
+    
+    FMatches.Add(sTemp);
   end;
 end;
 
