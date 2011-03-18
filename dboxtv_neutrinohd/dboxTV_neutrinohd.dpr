@@ -847,7 +847,7 @@ end;
  ******************************************************************************)
 function GetSubChannels(BoxID : Integer; ChannelID : ShortString):PChar; stdcall;
 begin
-  Result := PChar(HttpClient.GetURL(BoxID, URL_DBOX_CHANNEL_SUBCHANS));
+  Result := HttpClient.GetURL(BoxID, URL_DBOX_CHANNEL_SUBCHANS);
 end;
 
 (*******************************************************************************
