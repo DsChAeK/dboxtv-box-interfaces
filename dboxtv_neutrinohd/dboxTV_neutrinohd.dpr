@@ -128,7 +128,7 @@ uses
 // ##############################################################################################
 const
   AUTHOR  = 'DsChAeK';               // author info for dboxtv about box
-  VERSION = 'v1';                    // version info for dboxtv about box
+  VERSION = 'v2.0';                    // version info for dboxtv about box
   BOXNAME = 'Coolstream NeutrinoHD'; // boxname info for dboxtv display
 
 // ##############################################################################################
