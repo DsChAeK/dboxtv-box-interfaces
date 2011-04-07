@@ -1007,8 +1007,13 @@ begin
   sTemp := '';
 
 try
-  // read services
-  Services.Text := HttpClient.GetURL(BoxID, URL_DBOX_GETSERVICESXML);
+  // check for local services.xml
+  if FileExists('services.xml') then begin
+    Services.LoadFromFile('services.xml');
+  end
+  else
+    // read services
+    Services.Text := HttpClient.GetURL(BoxID, URL_DBOX_GETSERVICESXML);
 
   // check for local bouquets.xml
   if FileExists('bouquets.xml') then begin
@@ -1288,6 +1293,7 @@ var
 begin
   // init
   Counter := 0;
+  APChar := nil;
 
   // read channel programs
   sEPGData := HttpClient.GetURL_EPG(BoxID, URL_DBOX_EPGPROGRAMS, TAG_DATA, ChannelID);
