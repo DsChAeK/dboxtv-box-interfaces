@@ -1,7 +1,7 @@
 // ##############################################################################################
 //   Author:        DsChAeK
 //   URL:           http://www.dschaek.de
-//   Project:       dboxTV_neutrinohd.dll - a box interface dll for dboxTV
+//   Project:       dboxTV_neutrino.dll - a box interface dll for dboxTV
 //   Version:       1.0
 //
 //   Function:      DLL functions
@@ -21,7 +21,7 @@
 //
 // ##############################################################################################
 //
-// Info: This DLL enables the communication between dboxTV and NeutrinoHD.
+// Info: This DLL enables the communication between dboxTV and D-Box2 Neutrino.
 //       It may be used as a template for other box interfaces.
 //       This DLL provides functionality for the current selected box in dboxTV!
 //       All transfered data types are compatible with other languages, so you
@@ -34,7 +34,7 @@
 //          2. DLL function calls GetURL(URL_DBOX_ZAPTO) and returns the data
 //          3. dboxTV uses the data in context
 //
-//       All functions were created in relationship to neutrinoHD so there is a
+//       All functions were created in relationship to neutrino so there is a
 //       high possibility to miss a function or parameter which is needed for
 //       other interfaces and future use.
 //       If you miss something plz send me an email to admin@dschaek.de or visit
@@ -96,17 +96,17 @@
 //             FktGetURL_EPG is needed.
 //            -dboxTV telnet component is asynchron, so you have to use a delay!
 //
-// Files:    -dboxTV_neutrinohd.dpr -> all dll functions and export
-//           -UntURL.pas            -> box specific urls
-//           -UntHelpers.pas        -> useful string handling functions
-//           -UntHttpClient.pas     -> http request handling using dboxTV functions
-//           -UntRegEx.pas          -> regex handling using dboxTV functions
-//           -UntDataDLL.pas        -> data structures/function pointers for exchange
-//                                     with dboxTV
+// Files:    -dboxTV_neutrino.dpr -> all dll functions and export
+//           -UntURL.pas          -> box specific urls
+//           -UntHelpers.pas      -> useful string handling functions
+//           -UntHttpClient.pas   -> http request handling using dboxTV functions
+//           -UntRegEx.pas        -> regex handling using dboxTV functions
+//           -UntDataDLL.pas      -> data structures/function pointers for exchange
+//                                   with dboxTV
 //
 // ##############################################################################################
 
-library dboxtv_neutrinohd;
+library dboxtv_neutrino;
 
 uses
   sysutils,
@@ -118,7 +118,7 @@ uses
   UntHttpClient in '..\UntHttpClient.pas',
   UntRegEx in '..\UntRegEx.pas';
 
-{$IFDEF WINDOWS}{$R dboxTV_neutrinohd.rc}{$ENDIF}
+{$IFDEF WINDOWS}{$R dboxTV_neutrino.rc}{$ENDIF}
 {$LongStrings ON}
 
 {$R *.RES}
@@ -127,9 +127,9 @@ uses
 // ################################### info #####################################################
 // ##############################################################################################
 const
-  AUTHOR  = 'DsChAeK';               // author info for dboxtv about box
-  VERSION = 'v1';                    // version info for dboxtv about box
-  BOXNAME = 'Coolstream NeutrinoHD'; // boxname info for dboxtv display
+  AUTHOR  = 'DsChAeK';          // author info for dboxtv about box
+  VERSION = 'v1';               // version info for dboxtv about box
+  BOXNAME = 'D-Box2 Neutrino';  // boxname info for dboxtv display
 
 // ##############################################################################################
 // ################################### vars #####################################################
@@ -149,8 +149,7 @@ var
   AddBouquet        : TDLL_AddBouquet;        // dboxTV function to add a bouquet
   AddChannel        : TDLL_AddChannel;        // dboxTV function to add a channel
   AddChannelProgram : TDLL_AddChannelProgram; // dboxTV function to add a channel program
-  FreePChar         : TDLL_FreePChar;         // dboxTV function to dispose pchar mem
-  
+
 // ###########################################################################
 // ############################ handling functions ###########################
 // ###########################################################################
@@ -166,12 +165,11 @@ var
  *   FktAddChannel        : pointer to dboxTV add channel function
  *   FktAddChannelProgram : pointer to dboxTV add channel program function
  *   FktSendTelnetCmd     : pointer to dboxTV send telnet command function
- *   FktFreePChar         : pointer to function which dispose pchar mem
  *
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function Init (FktGetBoxData, FktLog, FktAddBouquet, FktAddChannel, FktAddChannelProgram, FktSendTelnetCmd, FktFreePChar : Pointer):ByteBool; stdcall;
+function Init (FktGetBoxData, FktLog, FktAddBouquet, FktAddChannel, FktAddChannelProgram, FktSendTelnetCmd : Pointer):ByteBool; stdcall;
 begin
   Result := true;
 
@@ -183,8 +181,7 @@ begin
     TMethod(AddChannel).Code := FktAddChannel;
     TMethod(AddChannelProgram).Code := FktAddChannelProgram;
     TMethod(SendTelnetCmd).Code := FktSendTelnetCmd;
-    TMethod(FreePChar).Code := FktFreePChar;
-    
+
   except
     Result := false;
   end;
@@ -211,7 +208,7 @@ begin
 
     // create http client here
     if not Assigned(HttpClient) then
-      HttpClient := THttpClient.Create(TMethod(GetBoxData).Code, TMethod(Log).Code, FktGetURL, FktGetURL_BIN, FktGetURL_EPG, @FreePChar);
+      HttpClient := THttpClient.Create(TMethod(GetBoxData).Code, TMethod(Log).Code, FktGetURL, FktGetURL_BIN, FktGetURL_EPG);
 
   except
     Result := false;
@@ -240,11 +237,11 @@ begin
   try
     // create needed regex here
     if RegEx = nil then
-      RegEx := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, @FreePChar);
+      RegEx := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext);
     if not Assigned(RegExChannels) then
-      RegExChannels := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, @FreePChar);
+      RegExChannels := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext);
     if not Assigned(RegExServices) then
-      RegExServices := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext, @FreePChar);
+      RegExServices := TRegEx.Create(FktNewRegEx, FktSetRegEx, FktGetMatch, FktExecute, FktExecuteNext);
 
   except
     Result := false;
@@ -293,17 +290,17 @@ end;
  * RGW:
  *   Status : true = box is compatible with this dll
  ******************************************************************************)
-function Check (BoxID : Integer):ByteBool; stdcall;
+function Check ():ByteBool; stdcall;
 var
   sTime : ShortString;
   sSettings : ShortString;
 begin
   Result := true;
 
-  Log('dboxTV_neutrinohd.dll: Checking...', 0);
+  Log('dboxTV_neutrino.dll: Checking...', 0);
 
   // check time
-  sTime := HttpClient.GetURL(BoxID, URL_DBOX_TIME);
+  sTime := HttpClient.GetURL(URL_DBOX_TIME);
 
   try
     StrToInt(sTime);
@@ -312,10 +309,10 @@ begin
     exit;
   end;
 
-  // now, we know this is a neutrino, but we have to check for neutrinoHD
-  sSettings := HttpClient.GetURL(BoxID, URL_DBOX_SETTINGS);
-
-  if not (sSettings = 'error') then
+  // now, we know this is a neutrino, but we have to check against neutrinoHD
+  sSettings := HttpClient.GetURL(URL_DBOX_SETTINGS);
+    
+  if (sSettings = 'error') then
     Result := false;
 end;
 
@@ -366,9 +363,9 @@ end;
  * RGW:
  *   Status : time_t as string
  ******************************************************************************)
-function GetTime(BoxID : Integer):ShortString; stdcall;
+function GetTime():ShortString; stdcall;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_TIME);
+  Result := HttpClient.GetURL(URL_DBOX_TIME);
 end;
 
 (*******************************************************************************
@@ -379,11 +376,11 @@ end;
  *   Status : true = record running
  *            false = record off
  ******************************************************************************)
-function GetRecordMode(BoxID : Integer):ByteBool; stdcall;
+function GetRecordMode():ByteBool; stdcall;
 var
   sTemp : String;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RECORDSTATUS);
+  sTemp := HttpClient.GetURL(URL_DBOX_RECORDSTATUS);
 
   if sTemp = 'on' then
     Result := true
@@ -399,11 +396,11 @@ end;
  *   Status : '1' = spts mode is on
  *            '0' = spts mode is off
  ******************************************************************************)
-function GetSPTSMode(BoxID : Integer):ByteBool; stdcall;
+function GetSPTSMode():ByteBool; stdcall;
 var
   sTemp : ShortString;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS);
+  sTemp := HttpClient.GetURL(URL_DBOX_SPTS);
 
   if sTemp = '1' then
     Result := true
@@ -418,14 +415,14 @@ end;
  * RGW:
  *   Status : 'ok' = spts mode is set
  ******************************************************************************)
-function SetSPTSMode(BoxID : Integer; OnOff : ByteBool):ByteBool; stdcall;
+function SetSPTSMode(OnOff : ByteBool):ByteBool; stdcall;
 var
   sTemp : ShortString;
 begin
   if OnOff then
-    sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS_ON)
+    sTemp := HttpClient.GetURL(URL_DBOX_SPTS_ON)
   else
-    sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS_OFF);
+    sTemp := HttpClient.GetURL(URL_DBOX_SPTS_OFF);
 
   if sTemp = 'ok' then
     Result := true
@@ -440,11 +437,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetMessageOnTv(BoxID : Integer; Msg : ShortString):ByteBool; stdcall;
+function SetMessageOnTv(Msg : ShortString):ByteBool; stdcall;
 var
   sTemp : ShortString;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_MESSAGE, TAG_DATA, Msg);
+  sTemp := HttpClient.GetURL(URL_DBOX_MESSAGE, TAG_DATA, Msg);
 
   if sTemp = 'ok' then
     Result := true
@@ -459,11 +456,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetRCLock(BoxID : Integer):ByteBool; stdcall;
+function SetRCLock():ByteBool; stdcall;
 var
   sTemp : ShortString;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RC_LOCK);
+  sTemp := HttpClient.GetURL(URL_DBOX_RC_LOCK);
 
   if sTemp = 'ok' then
     Result := true
@@ -478,11 +475,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetRCUnlock(BoxID : Integer):ByteBool; stdcall;
+function SetRCUnlock():ByteBool; stdcall;
 var
   sTemp : ShortString;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RC_UNLOCK);
+  sTemp := HttpClient.GetURL(URL_DBOX_RC_UNLOCK);
 
   if sTemp = 'ok' then
     Result := true
@@ -497,9 +494,9 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function GetBoxMode(BoxID : Integer):ShortString; stdcall;
+function GetBoxMode():ShortString; stdcall;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
+  Result := HttpClient.GetURL(URL_DBOX_GETMODE);
 end;
 
 (*******************************************************************************
@@ -509,11 +506,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetBoxMode(BoxID : Integer; Mode : ShortString):ByteBool; stdcall;
+function SetBoxMode(Mode : ShortString):ByteBool; stdcall;
 var
   sTemp : ShortString;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SETMODE, TAG_DATA, Mode);
+  sTemp := HttpClient.GetURL(URL_DBOX_SETMODE, TAG_DATA, Mode);
 
   if sTemp = 'ok' then
     Result := true
@@ -527,13 +524,6 @@ end;
  *
  *   URL_DBOX_GETALLPIDS
  *   -------------------
- * 00110
- * 00120 Mono
- * 00121 Mono
- * 00125 Dolby Digital 2.0
- * 00130 vtxt
- * 00100 pmt
- *
  *   VPID
  *    00511
  *   APID <description> [(AC3)]
@@ -548,13 +538,12 @@ end;
  *
  *   URL_DBOX_STREAMINFO
  *   -------------------
- *   1280x720
- *   16:9
- *   50fps
- *   MPEG stereo (48000)
- *
- *   X/Y_res
- *     576x480
+ *   X_res
+ *     480
+ *   Y_res
+ *     576
+ *   Bitrate
+ *     997500
  *   VideoFormat
  *     4:3
  *   Framerate
@@ -565,10 +554,10 @@ end;
  * RGW:
  *   Status : RStreamInfo
  ******************************************************************************)
-function GetStreamInfo (BoxID : Integer):RStreamInfo;  stdcall;
+function GetStreamInfo ():RStreamInfo;  stdcall;
 var
   i,c : Integer;
-  sTmp : ShortString;
+  sTmp, sTmp1 : ShortString;
   MyStreamInfo : RStreamInfo;
 
   sPids : String;
@@ -581,7 +570,7 @@ begin
   MyStreamInfo.iAPIDCnt := 0;
 
   // get stream pids
-  sPids := HttpClient.GetURL(BoxID, URL_DBOX_GETALLPIDS);
+  sPids := HttpClient.GetURL(URL_DBOX_GETALLPIDS);
 
   // ### extract stream info ###
   (*
@@ -658,39 +647,48 @@ begin
   Delete(MyStreamInfo.sALANG, Length(MyStreamInfo.sALANG), 1);
 
   // get stream info
-  sStreamInfo := HttpClient.GetURL(BoxID, URL_DBOX_STREAMINFO);
+  sStreamInfo := HttpClient.GetURL(URL_DBOX_STREAMINFO);
   sStreamInfo := sStreamInfo+^M; // append carriage return due to parsing last line
 
   // ### extract stream info ###
   (*
     Text:
-      720x576
-      16:9
-      25fps
-      MPEG stereo (48000)
-
+      480
+      576
+      997500
+      4:3
+      25
+      
     RegEx:
       .*[\r]
 
     Result:
-      $0 [1 - 4]: 480x576
-      $0 [6 - 9]: 16:9
-      $0 [11 - 17]: 50fps
-      $0 [19 - 22]: MPEG stereo (48000)
+      $0 [1 - 4]: 480
+      $0 [6 - 9]: 576
+      $0 [11 - 17]: 997500
+      $0 [19 - 22]: 4:3
+      $0 [24 - 26]: 25
   *)
   RegEx.SetRegEx('.*[\r]', false);
 
   // execute regex
   RegEx.Execute(PChar(sStreamInfo));
 
-  MyStreamInfo.sResolution  := RegEx.GetMatch(0);
+  sTmp := RegEx.GetMatch(0);
+  RegEx.ExecuteNext; // next regex result
+  sTmp1 := RegEx.GetMatch(0);
+  MyStreamInfo.sResolution := sTmp +'x'+ sTmp1;
+  RegEx.ExecuteNext; // next regex result
+  try
+    MyStreamInfo.sBitrate := IntToStr(StrToInt(RegEx.GetMatch(0)) div 1000)+'kbit';
+  except
+  end;
   RegEx.ExecuteNext; // next regex result
   MyStreamInfo.sAspectRatio := RegEx.GetMatch(0);
   RegEx.ExecuteNext; // next regex result
-  MyStreamInfo.sFramerate   := RegEx.GetMatch(0);
+  MyStreamInfo.sFramerate   := RegEx.GetMatch(0)+'fps';
   RegEx.ExecuteNext; // next regex result
   MyStreamInfo.sAudiotyp    := RegEx.GetMatch(0);
-  MyStreamInfo.sBitrate     := '-';
 
   Result := MyStreamInfo;
 end;
@@ -728,7 +726,7 @@ end;
  * RGW:
  *   Status : stream url
  ******************************************************************************)
-function GetStreamURL(BoxID : Integer; AStreamInfo:RStreamInfo; IsUDP : ByteBool; IsTV : ByteBool; PcIP, PcPort : ShortString):ShortString; stdcall;
+function GetStreamURL(AStreamInfo:RStreamInfo; IsUDP : ByteBool; IsTV : ByteBool; PcIP, PcPort : ShortString):ShortString; stdcall;
 var
   sURL : ShortString;
 begin
@@ -736,13 +734,21 @@ begin
 
   // http
   if not IsUDP then begin
-    sURL := 'http://'+GetBoxData(BoxID).sIp+':31339/0,'+AStreamInfo.sPMT+','
+    // tv mode
+    if IsTV then begin
+      sURL := 'http://'+GetBoxData().sIp+':31339/0,'+AStreamInfo.sPMT+','
                                                   +AStreamInfo.sVPID+',' ;
+    end
+    else begin
+      // radio mode
+      sURL := 'http://'+GetBoxData().sIp+':31338/';
+    end;
+
     // append audio pids
     sURL := sURL+AStreamInfo.sAPID;
   end
   else begin // udp
-    sURL := 'http://'+GetBoxData(BoxID).sIp+':'+GetBoxData(BoxID).sPort+URL_DBOX_UDP_START+' '+PcIP+' '+PcPort+' 0 '
+    sURL := 'http://'+GetBoxData().sIp+':'+GetBoxData().sPort+URL_DBOX_UDP_START+' '+PcIP+' '+PcPort+' 0 '
             +AStreamInfo.sPMT+' '
             +AStreamInfo.sVPID+' ';
 
@@ -765,14 +771,13 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetRCEMKey(BoxID : Integer; Key:ShortString):ByteBool;  stdcall;
+function SetRCEMKey(Key:ShortString):ByteBool;  stdcall;
 var
   sTemp : String;
 begin
   // take Key as it is
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RCEM, TAG_DATA, Key);
-  Sleep(100); // wait
-  
+  sTemp := HttpClient.GetURL(URL_DBOX_RCEM, TAG_DATA, Key);
+
   if sTemp = 'ok' then
     Result := true
   else
@@ -794,7 +799,7 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetZapChannel(BoxID : Integer; ChannelID : ShortString; IsSubChannel,UseAltSubChannelZap : ByteBool; SubIndex, SubCnt : Integer):ByteBool;  stdcall;
+function SetZapChannel(ChannelID : ShortString; IsSubChannel,UseAltSubChannelZap : ByteBool; SubIndex, SubCnt : Integer):ByteBool;  stdcall;
 var
   i : Integer;
   sTemp : String;
@@ -802,27 +807,27 @@ begin
 
   // if no subchannel, or no alternative zap method
   if not IsSubChannel or not UseAltSubChannelZap then begin
-    // zsp the normal way
-    sTemp := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO_CHAN, TAG_DATA, ChannelID);
+    // zap the normal way
+    sTemp := HttpClient.GetURL(URL_DBOX_ZAPTO_CHAN, TAG_DATA, ChannelID);
   end
   else begin
     // zap via rcem calls
     if UseAltSubChannelZap then begin
       if SubIndex < 10 then begin
-        SetRCEMKey(BoxID, 'KEY_HELP');   // call ? will refresh subchannels
-        SetRCEMKey(BoxID, 'KEY_YELLOW'); // call subchannel menu
+        SetRCEMKey('KEY_HELP');   // call ? will refresh subchannels
+        SetRCEMKey('KEY_YELLOW'); // call subchannel menu
         Sleep(500); // wait
-        SetRCEMKey(BoxID, 'KEY_'+IntToStr(SubIndex)) // direct choose subchannel via subindex
+        SetRCEMKey('KEY_'+IntToStr(SubIndex)) // direct choose subchannel via subindex
       end
       else begin
-        SetRCEMKey(BoxID, 'KEY_HELP');   // call ? will refresh subchannels
-        SetRCEMKey(BoxID, 'KEY_YELLOW'); // call subchannel menu
-        SetRCEMKey(BoxID, 'KEY_YELLOW'); // go down to menu bottom, will change mode
-        SetRCEMKey(BoxID, 'KEY_YELLOW'); // set mode back
+        SetRCEMKey('KEY_HELP');   // call ? will refresh subchannels
+        SetRCEMKey('KEY_YELLOW'); // call subchannel menu
+        SetRCEMKey('KEY_YELLOW'); // go down to menu bottom, will change mode
+        SetRCEMKey('KEY_YELLOW'); // set mode back
         for i := 1 to (SubCnt-1-SubIndex+1) do begin // go up to the wanted subchannel
-          SetRCEMKey(BoxID, 'KEY_UP');
+          SetRCEMKey('KEY_UP');
         end;
-        SetRCEMKey(BoxID, 'KEY_OK');
+        SetRCEMKey('KEY_OK');
       end;
     end;
   end;
@@ -845,9 +850,9 @@ end;
  *                 channel_id channel_name
  *                 ...
  ******************************************************************************)
-function GetSubChannels(BoxID : Integer; ChannelID : ShortString):PChar; stdcall;
+function GetSubChannels(ChannelID : ShortString):PChar; stdcall;
 begin
-  Result := PChar(HttpClient.GetURL(BoxID, URL_DBOX_CHANNEL_SUBCHANS));
+  Result := PChar(HttpClient.GetURL(URL_DBOX_CHANNEL_SUBCHANS));
 end;
 
 (*******************************************************************************
@@ -857,9 +862,9 @@ end;
  * RGW:
  *   Status : true
  ******************************************************************************)
-function SetUDPStreamStop(BoxID : Integer):ByteBool;  stdcall;
+function SetUDPStreamStop():ByteBool;  stdcall;
 begin
-  HttpClient.GetURL(BoxID, URL_DBOX_UDP_STOP);
+  HttpClient.GetURL(URL_DBOX_UDP_STOP);
 
   // TODO: check?
 
@@ -873,9 +878,9 @@ end;
  * RGW:
  *   channel id
  ******************************************************************************)
-function GetCurrentChannelID(BoxID : Integer):ShortString;  stdcall;
+function GetCurrentChannelID():ShortString;  stdcall;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO);
+  Result := HttpClient.GetURL(URL_DBOX_ZAPTO);
 end;
 
 (*******************************************************************************
@@ -885,11 +890,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetShutdown(BoxID : Integer):ByteBool;  stdcall;
+function SetShutdown():ByteBool;  stdcall;
 var
   sTemp : String;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SHUTDOWN);
+  sTemp := HttpClient.GetURL(URL_DBOX_SHUTDOWN);
 
   if sTemp = 'ok' then
     Result := true
@@ -904,11 +909,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetStandby(BoxID : Integer):ByteBool;  stdcall;
+function SetStandby():ByteBool;  stdcall;
 var
   sTemp : String;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_STANDBY);
+  sTemp := HttpClient.GetURL(URL_DBOX_STANDBY);
 
   if sTemp = 'ok' then
     Result := true
@@ -923,11 +928,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetWakeUp(BoxID : Integer):ByteBool;  stdcall;
+function SetWakeUp():ByteBool;  stdcall;
 var
   sTemp : String;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_WAKEUP);
+  sTemp := HttpClient.GetURL(URL_DBOX_WAKEUP);
 
   if sTemp = 'ok' then
     Result := true
@@ -942,11 +947,11 @@ end;
  * RGW:
  *   Status : true = ok
  ******************************************************************************)
-function SetReboot(BoxID : Integer):ByteBool;  stdcall;
+function SetReboot():ByteBool;  stdcall;
 var
   sTemp : String;
 begin
-  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_REBOOT);
+  sTemp := HttpClient.GetURL(URL_DBOX_REBOOT);
 
   if sTemp = 'ok' then
     Result := true
@@ -961,13 +966,13 @@ end;
  * RGW:
  *   buffer size
  ******************************************************************************)
-function GetOSDShot(BoxID : Integer):Pointer; stdcall;
+function GetOSDShot():Pointer; stdcall;
 begin
   // take a screenshot
-  SendTelnetCmd(BoxID, URL_DBOX_OSDSHOT_EXEC, 3000); // use dboxTV telnet cmd delay
+  SendTelnetCmd(URL_DBOX_OSDSHOT_EXEC, 3000); // use dboxTV telnet cmd delay
 
   // get screenshot, binary data
-  Result := HttpClient.GetURL_BIN(BoxID, URL_DBOX_OSDSHOT);
+  Result := HttpClient.GetURL_BIN(URL_DBOX_OSDSHOT);
 end;
 
 (*******************************************************************************
@@ -976,11 +981,11 @@ end;
  *   -> use bouquets.xml and services.xml
  *   -> extract all channeldata from bouquets.xml (URL_DBOX_GETBOUQUETSXML)
  *   -> extract servicetyp (radio/tv) from services.xml (URL_DBOX_GETSERVICESXML)
- *
+ *    
  * RGW:
  *   bouquet count
  ******************************************************************************)
-function GetBouquets(BoxID : Integer):Integer; stdcall;
+function GetBouquets():Integer; stdcall;
 var
   iInxBouquet : Integer;     // bouquet index
   iInxChannel : Integer;     // channel index
@@ -1008,7 +1013,7 @@ begin
 
 try
   // read services
-  Services.Text := HttpClient.GetURL(BoxID, URL_DBOX_GETSERVICESXML);
+  Services.Text := HttpClient.GetURL(URL_DBOX_GETSERVICESXML);
 
   // check for local bouquets.xml
   if FileExists('bouquets.xml') then begin
@@ -1016,32 +1021,33 @@ try
   end
   else
     // read bouquets
-    Bouquets.Text := HttpClient.GetURL(BoxID, URL_DBOX_GETBOUQUETSXML);
+    Bouquets.Text := HttpClient.GetURL(URL_DBOX_GETBOUQUETSXML);
 
   // ### extract bouquets ###
   (*
-      Text:
-        <Bouquet name="Favorites Movie" hidden="0" locked="0">
-          <S i="002a" n="13th Street" t="0001" on="0085" s="192" frq="12070"/>
-          <S i="0024" n="SciFi" t="0011" on="0085" s="192" frq="11758"/>
-        </Bouquet>
+    Text:
+     <Bouquet name="Favorites Tv" hidden="0" locked="0">
+       <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
+       <channel serviceID="6d66" name="ZDF" tsid="0437" onid="0001" sat="192"/>
+     </Bouquet>
 
-      RegEx:
-        <Bouquet name="(.*?)" hidden="(.*?)" locked="(.*?)">(.*?)</Bouquet>
+     RegEx:
+       <Bouquet.*?name="(.*?)" hidden="(.*?)" locked="(.*?)">(.*?)</Bouquet>
 
-      Result:
-        $0 [1 - 242]: <Bouquet name="Favorites Movie" hidden="0" locked="0">
-                       <S i="002a" n="13th Street" t="0001" on="0085" s="192" frq="12070"/>
-                       <S i="0024" n="SciFi" t="0011" on="0085" s="192" frq="11758"/>
-                    </Bouquet>
-        $1 [16 - 30]: Favorites Movie
-        $2 [41 - 41]: 0
-        $3 [52 - 52]: 0
-        $4 [55 - 232]:
-                       <S i="002a" n="13th Street" t="0001" on="0085" s="192" frq="12070"/>
-                       <S i="0024" n="SciFi" t="0011" on="0085" s="192" frq="11758"/>
+     Result:
+      $0 [1 - 231]: <Bouquet name="Favorites Tv" hidden="0" locked="0">
+             <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
+             <channel serviceID="6d66" name="ZDF" tsid="0437" onid="0001" sat="192"/>
+      </Bouquet>
+      $1 [16 - 27]: Favorites Tv
+      $2 [38 - 38]: 0
+      $3 [49 - 49]: 0
+      $4 [52 - 221]:
+             <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
+             <channel serviceID="6d66" name="ZDF" tsid="0437" onid="0001" sat="192"/>
   *)
-  RegEx.SetRegEx('<Bouquet.*?name="(.*?)" '+
+  RegEx.SetRegEx('<Bouquet.*?'+
+                          'name="(.*?)" '+
                           'hidden="(.*?)" '+
                           'locked="(.*?)">'+
                           '(.*?)'+ // all Channels!
@@ -1072,30 +1078,26 @@ try
 
     // ### extract channel data ###
     (*
-        Text:
-          <S i="0009" n="Sky Action" t="0002" on="0085" s="192" frq="11798".*/>
+      Text:
+        <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001" sat="192"/>
 
-        RegEx:
-          <S i="(.*?)" n="(.*?)" t="(.*?)" on="(.*?)" s="(.*?)" frq="(.*?)"/>
+      RegEx:
+        <channel serviceID="(.*?)" name="(.*?)" tsid="(.*?)" onid="(.*?)"(.*?)
 
-        Result:
-          $0 [1 - 67]: <S i="0009" n="Sky Action" t="0002" on="0085" s="192" frq="11798"/>
-          $1 [7 - 10]: 0009
-          $2 [16 - 25]: Sky Action
-          $3 [31 - 34]: 0002
-          $4 [41 - 44]: 0085
-          $5 [50 - 52]: 192
-          $6 [60 - 64]: 11798
+      Result:
+        $0 [8 - 73]: <channel serviceID="6dca" name="Das Erste" tsid="044d" onid="0001"
+        $1 [28 - 31]: 6dca
+        $2 [40 - 48]: Das Erste
+        $3 [57 - 60]: 044d
+        $4 [69 - 72]: 0001
+        $5 [74 - 73]:
     *)
-    RegExChannels.SetRegEx('<S i="(.*?)" '+
-                              'n="(.*?)" '+
-                              't="(.*?)" '+
-                              'on="(.*?)" '+
-                              's="(.*?)" '+
-                              'frq="(.*?)".*'+
-                              '/>', // 'sat' or nothing, -> unimportant
-                              false);
-
+    RegExChannels.SetRegEx('<channel serviceID="(.*?)" '+
+                                    'name="(.*?)" '+
+                                    'tsid="(.*?)" '+
+                                    'onid="(.*?)"'+
+                                    '(.*?)', // 'sat' or nothing, -> unimportant
+                                    false);
    APChar := StrAlloc(length(RegEx.GetMatch(4)) + 1);
    StrPCopy(APChar, RegEx.GetMatch(4));
 
@@ -1119,18 +1121,13 @@ try
 
       // set channel data
       if RegExChannels.GetMatch(0) <> '' then begin
-        try
+        // tsid has to be without a leading '0' in channel id!!!
+        sTemp := RegExChannels.GetMatch(3);
+        if sTemp[1] = '0' then
+          sTemp := Copy(sTemp, 2, Length(sTemp));
 
-          // build channel id
-          Channel.sChannelId := IntToHex(StrToInt(RegExChannels.GetMatch(6))*4+StrToInt(RegExChannels.GetMatch(5)), 4)+
-                                IntToHex(StrToInt('$' + RegExChannels.GetMatch(3)), 4)+
-                                IntToHex(StrToInt('$' + RegExChannels.GetMatch(4)), 4)+
-                                IntToHex(StrToInt('$' + RegExChannels.GetMatch(1)), 4);
-
-          Channel.sChannelId := LowerCase(Channel.sChannelId);
-
-        except
-        end;
+        // build channel id
+        Channel.sChannelId := sTemp+RegExChannels.GetMatch(4)+RegExChannels.GetMatch(1);
 
         // set indizes
         Channel.BouquetIndex := iInxBouquet;
@@ -1138,35 +1135,42 @@ try
         Channel.IndexGlobal := iInxChannelGlob;
       end;
 
-      // before parse services.xml cut all text until current transponder (really faster!)
-      if (pos('TS id="'+LowerCase(IntToHex(StrToInt('$' + RegExChannels.GetMatch(3)), 4))+'"', Services.Text) > 0) then begin
-        SplitString(Services.Text, 'TS id="'+LowerCase(IntToHex(StrToInt('$' + RegExChannels.GetMatch(3)), 4))+'"', sTemp, sServiceList)
+      // before regex services.xml cut all text until current transponder (really faster!)
+      if (pos('transponder id="'+RegExChannels.GetMatch(3)+'"', Services.Text) > 0) then begin
+        SplitString(Services.Text, 'transponder id="'+RegExChannels.GetMatch(3)+'"', sTemp, sServiceList)
       end
-      else if (pos('TS id="'+LowerCase(IntToHex(StrToInt('$' + RegExChannels.GetMatch(3)), 4))+'"', Services.Text) > 0) then
-        SplitString(Services.Text, 'TS id="'+LowerCase(IntToHex(StrToInt('$' + RegExChannels.GetMatch(3)), 4))+'"', sTemp, sServiceList);
+      else if (pos('transponder id="'+LowerCase(RegExChannels.GetMatch(3))+'"', Services.Text) > 0) then
+        SplitString(Services.Text, 'transponder id="'+LowerCase(RegExChannels.GetMatch(3))+'"', sTemp, sServiceList);
 
-      // not needed
-      sTemp := '';
+      // copy 200 characters up to current service_id for extracting service data (really faster!)
+      sTemp := Copy(sServiceList, pos('service_id="'+RegExChannels.GetMatch(1)+'"', sServiceList)-15, 200);
 
-      // copy 200 characters up to current channel name for extracting service data (really faster!)
-      sTemp := Copy(sServiceList, pos('n="'+RegExChannels.GetMatch(2)+'"', sServiceList)-15, 200);
-       
+      // if service_id not found, try it by channel name
+      if (pos('service_id="'+RegExChannels.GetMatch(1)+'"', sServiceList)-15 = -15) then begin
+        sTemp := Copy(sServiceList, pos('name="'+RegExChannels.GetMatch(2)+'"', sServiceList)-15, 200);
+      end;
+
       // ### extract service data ###
       (*
-        $0 [7539 - 7595]: <S i="4f7d" n="MGM" t="1"/>
-        $1 [7572 - 7574]: MGM
-        $2 [7591 - 7592]: 1
-          OR
-        $2 [7591 - 7592]: 0001
-      *)
-      APChar := StrAlloc(length('<S i="'+LowerCase(IntToHex(StrToInt('$' + RegExChannels.GetMatch(1)), 4))+'" '+
-                                   'n="(.*?)" '+
-                                   't="(.*?)".*?') + 1);
-      StrPCopy(APChar, '<S i="'+LowerCase(IntToHex(StrToInt('$' + RegExChannels.GetMatch(1)), 4))+'" '+
-                                   'n="(.*?)" '+
-                                   't="(.*?)".*?');
+        Text:
+          <channel service_id="7031" name="EinsExtra" service_type="01"/>
 
-      RegExServices.SetRegEx(APChar, false);
+        RegEx:
+          <channel service_id="7031" name="(.*?)" service_type="(.*?)".*?>
+
+        Result:
+          $0 [1 - 63]: <channel service_id="7031" name="EinsExtra" service_type="01"/>
+          $1 [34 - 42]: EinsExtra
+          $2 [59 - 60]: 01
+      *)
+      APChar := StrAlloc(length('<channel service_id="'+RegExChannels.GetMatch(1)+'" '+
+                                   'name="(.*?)" '+
+                                   'service_type="(.*?)".*?>') + 1);
+      StrPCopy(APChar, '<channel service_id="'+RegExChannels.GetMatch(1)+'" '+
+                                   'name="(.*?)" '+
+                                   'service_type="(.*?)".*?>');
+
+      RegExServices.SetRegEx(APChar,false);
       RegExServices.Execute(PChar(sTemp));
 
       StrDispose(APChar);
@@ -1177,13 +1181,15 @@ try
       end
       else begin
         try
-          // mode, 2=radio
-          if StrToInt(RegExServices.GetMatch(2)) = 2 then begin
-            Channel.Mode := false; // radio
-          end
-          else begin
-            Channel.Mode := true; // tv
-          end;
+          // mode, 1=tv 0=radio
+          if RegExServices.GetMatch(2) <> '' then begin
+            if StrToInt(RegExServices.GetMatch(2)) = 1 then begin
+              Channel.Mode := true;
+            end
+            else begin
+              Channel.Mode := false;
+            end;
+          end;  
         except
         end;
       end;
@@ -1208,12 +1214,12 @@ try
 
       // add bouquet once
       if not IsBouquetAdded then begin
-        AddBouquet(BoxID, Bouquet);
+        AddBouquet(Bouquet);
         IsBouquetAdded := true;
       end;
 
       // add channel to bouquet
-      AddChannel(BoxID, Bouquet.Index, Channel);
+      AddChannel(Bouquet.Index, Channel);
 
       // increase indizes and go to add next channel
       Inc(iInxChannel);
@@ -1261,9 +1267,9 @@ end;
  * RGW:
  *   List (Text) -> format
  ******************************************************************************)
-function GetEPGCurrentChannels(BoxID : Integer): PChar; stdcall;
+function GetEPGCurrentChannels(): PChar; stdcall;
 begin
-  Result := HttpClient.GetURL_EPG(BoxID, URL_DBOX_EPGEXT);
+  Result := HttpClient.GetURL_EPG(URL_DBOX_EPGEXT);
 end;
 
 (*****************************************************************************
@@ -1278,7 +1284,7 @@ end;
  * RGW:
  *   channel program count
  ******************************************************************************)
-function GetEPGChannel(BoxID : Integer; ChannelID : ShortString; BouquetIndex : Integer; ChannelIndex : Integer):Integer; stdcall;
+function GetEPGChannel(ChannelID : ShortString; BouquetIndex : Integer; ChannelIndex : Integer):Integer; stdcall;
 var
   i,Counter : Integer;
   ChannelProgram : RChannelProgram;
@@ -1290,7 +1296,7 @@ begin
   Counter := 0;
 
   // read channel programs
-  sEPGData := HttpClient.GetURL_EPG(BoxID, URL_DBOX_EPGPROGRAMS, TAG_DATA, ChannelID);
+  sEPGData := HttpClient.GetURL_EPG(URL_DBOX_EPGPROGRAMS, TAG_DATA, ChannelID);
 
   // ### extract epg info ###
   (*
@@ -1347,7 +1353,7 @@ begin
       $6 [299 - 303]: 12:30
       $7 [332 - 334]: 150
       $8 [375 - 403]: Gute Zeiten, schlechte Zeiten
-      $9 [440 - 439]:
+      $9 [440 - 439]: 
       $10 [470 - 508]: - Wiederholung der Folgen 4535 - 4539 -
   *)
   RegEx.SetRegEx('<prog>.*?<eventid>(.*?)</eventid>.*?'+
@@ -1385,15 +1391,13 @@ begin
       StrPCopy(APChar, RegEx.GetMatch(10));
 
       ChannelProgram.sInfo2 := StrNew(APChar);
+
+      StrDispose(APChar);
     except
     end;
 
     // add channel program to a channel
-    i := AddChannelProgram(BoxID, BouquetIndex, ChannelIndex, ChannelProgram);
-
-    // free sInfo2 data after add!
-    StrDispose(APChar);
-    StrDispose(ChannelProgram.sInfo2);
+    i := AddChannelProgram(BouquetIndex, ChannelIndex, ChannelProgram);
 
     if (i=1) then
       Inc(Counter);

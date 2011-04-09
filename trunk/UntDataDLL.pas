@@ -121,21 +121,20 @@ type
 
   type
     // box data
-    TDLL_GetBoxData = function (BoxID : Integer):RBoxData of object;
+    TDLL_GetBoxData = function ():RBoxData of object;
                
     // logging
     TDLL_LogStr = procedure (Text:PChar; Result : Integer) of object;
 
     // data
-    TDLL_AddBouquet = function (BoxID : Integer; Bouquet : RBouquet):Integer of object;
-    TDLL_AddChannel = function (BoxID : Integer; BouquetID:Integer; Channel : RChannel):Integer of object;
-    TDLL_AddChannelProgram = function (BoxID : Integer; BouquetIndex:Integer; ChannelIndex:Integer; ChannelProgram : RChannelProgram):Integer of object;
+    TDLL_AddBouquet = function (Bouquet : RBouquet):Integer of object;
+    TDLL_AddChannel = function (BouquetID:Integer; Channel : RChannel):Integer of object;
+    TDLL_AddChannelProgram = function (BouquetIndex:Integer; ChannelIndex:Integer; ChannelProgram : RChannelProgram):Integer of object;
 
     // http client
-    TDLL_GetURL = function (BoxID : Integer; URL : PChar):PChar of object;
-    TDLL_GetURL_BIN = function (BoxID : Integer; URL : PChar):Pointer of object;
-    TDLL_GetURL_EPG = function (BoxID : Integer; URL : PChar):PChar of object;
-    TDLL_FreePChar = function (ToFree : PChar):ByteBool of object;
+    TDLL_GetURL = function (URL : PChar):PChar of object;
+    TDLL_GetURL_BIN = function (URL : PChar):Pointer of object;
+    TDLL_GetURL_EPG = function (URL : PChar):PChar of object;
 
     // regex engine
     TDLL_NewRegEx = function : Integer of object;
@@ -143,7 +142,7 @@ type
     TDLL_GetMatch = function (iID : Integer; iNr : Integer) : PChar of object;
     TDLL_Execute = function (iID : Integer; Text : PChar) : Integer of object;
     TDLL_ExecuteNext = function (iID : Integer) : ByteBool of object;
-    TDLL_SendTelnetCmd = function(BoxID : Integer; sCmd : ShortString; iWait : Integer):ByteBool of object;
+    TDLL_SendTelnetCmd = function(sCmd : PChar; iWait : Integer):ByteBool of object;
 
 implementation
 

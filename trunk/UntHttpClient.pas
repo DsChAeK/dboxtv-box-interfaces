@@ -36,26 +36,21 @@ type
   // http client
   THttpClient = class(TObject)
   public
-    sHttpAnswer        : String;          // http answer as string
-    sHttpAnswer_EPG    : String;          // http answer as string (epg data)
-    HttpAnswer_BIN     : Pointer;         // http answer as pointer (binary data)
-
     FGetBoxData        : TDLL_GetBoxData; // get box data (ip/port/...)
     FLog               : TDLL_LogStr;     // log function
     FGetURL            : TDLL_GetURL;     // main http requests
     FGetURL_BIN        : TDLL_GetURL_BIN; // main http requests only for binary data
     FGetURL_EPG        : TDLL_GetURL_EPG; // epg http requests
-    FFreePChar         : TDLL_FreePChar;  // free pchar mem allocated by dboxTV
 
-    constructor Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG, aFFreePChar : Pointer);reintroduce;
+    constructor Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG : Pointer);reintroduce;
 
-    function BuildURL(BoxID : Integer; aURL,Tag,Tagdata : ShortString):String;
-    function GetURL(BoxID : Integer; aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
-    function GetURL(BoxID : Integer; aURL : ShortString): PChar; overload;
-    function GetURL_BIN(BoxID : Integer; aURL : ShortString): Pointer; overload;
+    function BuildURL(aURL,Tag,Tagdata : ShortString):String;
+    function GetURL(aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
+    function GetURL(aURL : ShortString): PChar; overload;
+    function GetURL_BIN(aURL : ShortString): Pointer; overload;
 
-    function GetURL_EPG(BoxID : Integer; aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
-    function GetURL_EPG(BoxID : Integer; aURL : ShortString): PChar; overload;
+    function GetURL_EPG(aURL, Tag, Tagdata : ShortString): PChar; overload; virtual;
+    function GetURL_EPG(aURL : ShortString): PChar; overload;
 
     // string handling
     function ReplSubStr (TheString, OldSubStr, NewSubStr : ShortString) : ShortString;
@@ -74,19 +69,17 @@ implementation
  *   aGetURL      : pointer to http function for normal urls
  *   aGetURL_BIN  : pointer to http function for binary data
  *   aGetURL_EPG  : pointer to http function for epg
- *   aFFreePChar  : pointer to dboxtv function to free pchar mem
  *
  * RGW:
  *   none
  ******************************************************************************)
-constructor THttpClient.Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG, aFFreePChar : Pointer);
+constructor THttpClient.Create(aGetBoxData, aLog, aGetURL, aGetURL_BIN, aGetURL_EPG : Pointer);
 begin
   TMethod(FGetBoxData).Code := aGetBoxData;
   TMethod(FLog).Code := aLog;
   TMethod(FGetURL).Code := aGetURL;
   TMethod(FGetURL_BIN).Code := aGetURL_BIN;
   TMethod(FGetURL_EPG).Code := aGetURL_EPG;
-  TMethod(FFreePChar).Code := aFFreePChar;
 end;
 
 (*******************************************************************************
@@ -101,12 +94,12 @@ end;
  * RGW:
  *   real url
  ******************************************************************************)
-function THttpClient.BuildURL(BoxID : Integer; aURL, Tag, TagData : ShortString):String;
+function THttpClient.BuildURL(aURL, Tag, TagData : ShortString):String;
 var
   MyURL : String;
 begin
 
-  MyURL := 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL;
+  MyURL := 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL;
 
   if Tag <> '' then
     MyURL := ReplSubStr(MyURL, Tag, TagData);
@@ -156,27 +149,16 @@ end;
  * RGW:
  *   data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL(BoxID : Integer; aURL, Tag, Tagdata: ShortString): PChar;
+function THttpClient.GetURL(aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  // alloc url
-  APChar := StrAlloc(length(BuildURL(BoxID, aURL,Tag,Tagdata)) + 1);
-  StrPCopy(APChar, BuildURL(BoxID, aURL,Tag,Tagdata));
+  APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata)) + 1);
+  StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
 
-  // call dboxTV function
-  Result := FGetURL(BoxID, APChar);
+  Result := FGetURL(APChar);
 
-  // copy answer to own string
-  sHttpAnswer := Result;
-
-  // free answer from dboxTV
-  FFreePChar(Result);
-
-  // free url
   StrDispose(APChar);
-
-  Result := PChar(sHttpAnswer);
 end;
 
 (*******************************************************************************
@@ -189,27 +171,16 @@ end;
  * RGW:
  *   data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL(BoxID : Integer; aURL: ShortString): PChar;
+function THttpClient.GetURL(aURL: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  // alloc url
-  APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
-  StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
+  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL) + 1);
+  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
 
-  // call dboxTV function
-  Result := FGetURL(BoxID, APChar);
+  Result := FGetURL(APChar);
 
-  // copy answer to own string
-  sHttpAnswer := Result;
-
-  // free answer from dboxTV
-  FFreePChar(Result);
-
-  // free url
   StrDispose(APChar);
-
-  Result := PChar(sHttpAnswer);
 end;
 
 (*******************************************************************************
@@ -224,27 +195,16 @@ end;
  * RGW:
  *   epg data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL_EPG(BoxID : Integer; aURL, Tag, Tagdata: ShortString): PChar;
+function THttpClient.GetURL_EPG(aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  // alloc url
-  APChar := StrAlloc(length(BuildURL(BoxID, aURL,Tag,Tagdata)) + 1);
-  StrPCopy(APChar, BuildURL(BoxID, aURL,Tag,Tagdata));
+  APChar := StrAlloc(length(BuildURL(aURL,Tag,Tagdata))+1);
+  StrPCopy(APChar, BuildURL(aURL,Tag,Tagdata));
 
-  // call dboxTV function
-  Result := FGetURL_EPG(BoxID, APChar);
+  Result := FGetURL_EPG(APChar);
 
-  // copy answer to own string
-  sHttpAnswer_EPG := Result;
-
-  // free answer from dboxTV
-  FFreePChar(Result);
-
-  // free url
   StrDispose(APChar);
-
-  Result := PChar(sHttpAnswer_EPG);
 end;
 
 (*******************************************************************************
@@ -257,27 +217,16 @@ end;
  * RGW:
  *   epg data (ascii)
  ******************************************************************************)
-function THttpClient.GetURL_EPG(BoxID : Integer; aURL: ShortString): PChar;
+function THttpClient.GetURL_EPG(aURL: ShortString): PChar;
 var
   APChar : PChar;
 begin
-  // alloc url
-  APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
-  StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
+  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
+  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
 
-  // call dboxTV function
-  Result := FGetURL_EPG(BoxID, APChar);
+  Result := FGetURL_EPG(APChar);
 
-  // copy answer to own string
-  sHttpAnswer_EPG := Result;
-
-  // free answer from dboxTV
-  FFreePChar(Result);
-
-  // free url
   StrDispose(APChar);
-
-  Result := PChar(sHttpAnswer_EPG);  
 end;
 
 (*******************************************************************************
@@ -290,27 +239,16 @@ end;
  * RGW:
  *   binary data from http answer
  ******************************************************************************)
-function THttpClient.GetURL_BIN(BoxID : Integer; aURL: ShortString): Pointer;
+function THttpClient.GetURL_BIN(aURL: ShortString): Pointer;
 var
   APChar : PChar;
 begin
-  // alloc url
-  APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
-  StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
+  APChar := StrAlloc(length('http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL)+1);
+  StrPCopy(APChar, 'http://'+FGetBoxData().sIp+':'+FGetBoxData().sPort+aURL);
 
-  // call dboxTV function
-  Result := FGetURL_BIN(BoxID, APChar);
+  Result := FGetURL_BIN(APChar);
 
-  // copy answer to own string
-  HttpAnswer_BIN := Result;
-
-  // free answer from dboxTV
-//  FFreePChar(Result);
-
-  // free url
   StrDispose(APChar);
-
-  Result := HttpAnswer_BIN;
 end;
 
 end.
