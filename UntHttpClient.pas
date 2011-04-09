@@ -20,7 +20,18 @@
 //                  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
 // ##############################################################################################
-
+//
+// Info:
+//        There are 3 methods to get URLs:
+//        1. GetURL():     to set control commands/get info from your box
+//                         -> used for the most http calls
+//        2. GetURL_EPG(): to get epg data from box, dboxTV calls this from a own thread
+//                         -> the used component isn't multithreadsafe so we need a own function
+//        3. GetURL_BIN(): to get binary data from a http answer
+//                         -> used for box osd screenshot only
+//
+//       
+// ##############################################################################################
 unit UntHttpClient;
 
 interface

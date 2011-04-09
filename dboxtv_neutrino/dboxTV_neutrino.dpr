@@ -2,7 +2,7 @@
 //   Author:        DsChAeK
 //   URL:           http://www.dschaek.de
 //   Project:       dboxTV_neutrino.dll - a box interface dll for dboxTV
-//   Version:       1.0
+//   Version:       2.0
 //
 //   Function:      DLL functions
 //
@@ -31,11 +31,11 @@
 //
 //       -> e.g. dboxTV wants the current channel id
 //          1. dboxTV calls the DLL function GetCurrentChannelID()
-//          2. DLL function calls GetURL(URL_DBOX_ZAPTO) and returns the data
+//          2. DLL function calls GetURL(URL_DBOX_ZAPTO) and returns the data to dboxTV
 //          3. dboxTV uses the data in context
 //
-//       All functions were created in relationship to neutrino so there is a
-//       high possibility to miss a function or parameter which is needed for
+//       All functions were created in relationship to neutrino/neutrinoHD so there
+//       is a high possibility to miss a function or parameter which is needed for
 //       other interfaces and future use.
 //       If you miss something plz send me an email to admin@dschaek.de or visit
 //       my developer forum http://forum.dschaek.de/board.php?boardid=30
@@ -82,7 +82,7 @@
 //       dboxTV uses TRegExpr from Andrey V. Sorokin (http://anso.virtualave.net/)
 //       I recommend using "TestRegExp.exe" to find the best way parsing data, if
 //       it is working there, it will be working inside this dll.
-//       Plz have a look at UntRegEx.pas and Init() to understand how TRegExpr
+//       Plz have a look at UntRegEx.pas header info to understand how TRegExpr
 //       works and how to implement the dboxTV functions.
 //       Html special chars and utf8 will be translated automatically.
 //
@@ -128,7 +128,7 @@ uses
 // ##############################################################################################
 const
   AUTHOR  = 'DsChAeK';          // author info for dboxtv about box
-  VERSION = 'v2.0';               // version info for dboxtv about box
+  VERSION = 'v2.0';             // version info for dboxtv about box
   BOXNAME = 'D-Box2 Neutrino';  // boxname info for dboxtv display
 
 // ##############################################################################################
