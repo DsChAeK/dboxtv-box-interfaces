@@ -4,7 +4,7 @@
 //   Project:       Neutrino.dll - box interface dll for dboxTV
 //   Version:       1.0
 //
-//   Function:      Http client, uses only dboxTV functions
+//   Function:      Http client, uses dboxTV internal http client functions
 //
 //   License:       Copyright (c) 2009, DsChAeK
 //
@@ -170,19 +170,22 @@ end;
 function THttpClient.GetURL(BoxID : Integer; aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
+  Data : PChar;
 begin
+  Result := '';
+
   // alloc url
   APChar := StrAlloc(length(BuildURL(BoxID, aURL,Tag,Tagdata)) + 1);
   StrPCopy(APChar, BuildURL(BoxID, aURL,Tag,Tagdata));
 
   // call dboxTV function
-  Result := FGetURL(BoxID, APChar);
+  Data := FGetURL(BoxID, APChar);
 
   // copy answer to own string
-  sHttpAnswer := Result;
+  sHttpAnswer := StrPas(Data);
 
   // free answer from dboxTV
-  FFreePChar(Result);
+  FFreePChar(Data);
 
   // free url
   StrDispose(APChar);
@@ -203,23 +206,27 @@ end;
 function THttpClient.GetURL(BoxID : Integer; aURL: ShortString): PChar;
 var
   APChar : PChar;
+  Data : PChar;
 begin
+  Result := '';
+
   // alloc url
   APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
   StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
 
   // call dboxTV function
-  Result := FGetURL(BoxID, APChar);
+  Data := FGetURL(BoxID, APChar);
 
   // copy answer to own string
-  sHttpAnswer := Result;
+  sHttpAnswer := StrPas(Data);
 
   // free answer from dboxTV
-  FFreePChar(Result);
+  FFreePChar(Data);
 
   // free url
   StrDispose(APChar);
 
+  //Result := PChar(sHttpAnswer);
   Result := PChar(sHttpAnswer);
 end;
 
@@ -238,19 +245,20 @@ end;
 function THttpClient.GetURL_EPG(BoxID : Integer; aURL, Tag, Tagdata: ShortString): PChar;
 var
   APChar : PChar;
+  Data : PChar;
 begin
   // alloc url
   APChar := StrAlloc(length(BuildURL(BoxID, aURL,Tag,Tagdata)) + 1);
   StrPCopy(APChar, BuildURL(BoxID, aURL,Tag,Tagdata));
 
   // call dboxTV function
-  Result := FGetURL_EPG(BoxID, APChar);
+  Data := FGetURL_EPG(BoxID, APChar);
 
   // copy answer to own string
-  sHttpAnswer_EPG := Result;
+  sHttpAnswer_EPG := StrPas(Data);
 
   // free answer from dboxTV
-  FFreePChar(Result);
+  FFreePChar(Data);
 
   // free url
   StrDispose(APChar);
@@ -271,19 +279,22 @@ end;
 function THttpClient.GetURL_EPG(BoxID : Integer; aURL: ShortString): PChar;
 var
   APChar : PChar;
+  Data : PChar;
 begin
+  Result := '';
+
   // alloc url
   APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
   StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
 
   // call dboxTV function
-  Result := FGetURL_EPG(BoxID, APChar);
+  Data := FGetURL_EPG(BoxID, APChar);
 
   // copy answer to own string
-  sHttpAnswer_EPG := Result;
+  sHttpAnswer_EPG := StrPas(Data);
 
   // free answer from dboxTV
-  FFreePChar(Result);
+  FFreePChar(Data);
 
   // free url
   StrDispose(APChar);
@@ -304,13 +315,14 @@ end;
 function THttpClient.GetURL_BIN(BoxID : Integer; aURL: ShortString): Pointer;
 var
   APChar : PChar;
+  Data : PChar;
 begin
   // alloc url
   APChar := StrAlloc(length('http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL) + 1);
   StrPCopy(APChar, 'http://'+FGetBoxData(BoxID).sIp+':'+FGetBoxData(BoxID).sPort+aURL);
 
   // call dboxTV function
-  Result := FGetURL_BIN(BoxID, APChar);
+  Data := FGetURL_BIN(BoxID, APChar);
 
   // copy answer to own string
   HttpAnswer_BIN := Result;

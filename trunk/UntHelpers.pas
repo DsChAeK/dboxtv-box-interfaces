@@ -25,12 +25,15 @@ unit UntHelpers;
 
 interface
 
-uses  SysUtils;
+uses  SysUtils, windows;
 
 {$LongStrings ON}
 
 procedure SplitString (TheText, Delim : String; var Key, Value : String);
 function  ReplSubStr (TheString, OldSubStr, NewSubStr : String) : String;
+
+function DateTimeToUnix(Time: TDateTime): Longint;
+function UnixToDateTime(Time: Longint): TDateTime;
 
 implementation
 
@@ -91,6 +94,40 @@ begin
     TheString := Copy (TheString, P+OldLen, MaxInt);
   until false;
   Result := Result + TheString;
+end;
+
+function DateTimeToUnix(Time: TDateTime): Longint;
+var
+  TimeDec:Integer;
+  Info:TTimeZoneInformation;
+begin
+  TimeDec := 0;
+
+  case GetTimeZoneInformation(Info) of
+    TIME_ZONE_ID_STANDARD: TimeDec:=Info.Bias*60;
+    TIME_ZONE_ID_DAYLIGHT: TimeDec:=Info.Bias*60+Info.DaylightBias*60;
+  end;
+
+  Result:=Round((Time-25569)*86400)+TimeDec;
+end;
+
+function UnixToDateTime(Time: Longint): TDateTime;
+var
+  dt:TDateTime;
+  TimeDec:Integer;
+  iiTime:Int64;
+  Info:TTimeZoneInformation;
+begin
+  iiTime:=Time;
+  TimeDec := 0;
+
+  case GetTimeZoneInformation(Info) of
+    TIME_ZONE_ID_STANDARD: TimeDec:=Info.Bias*60;
+    TIME_ZONE_ID_DAYLIGHT: TimeDec:=Info.Bias*60+Info.DaylightBias*60;
+  end;
+
+  dt:=(iiTime-TimeDec)/86400+25569;
+  Result:=dt;
 end;
 
 end.
