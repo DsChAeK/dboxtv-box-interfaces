@@ -142,6 +142,11 @@ var
   sMatch : PChar;
   sTemp : String;
 begin
+  if Text = '' then begin
+    Result := -1;
+    exit;
+  end;
+
   Result := FExecute(FID, Text);
 
   // clear all matches
@@ -175,8 +180,13 @@ var
   sMatch : PChar;
   sTemp : String;
 begin
+try
   // execute next
   Result := FExecuteNext(FID);
+except
+  Result := false;
+  exit;
+end;
 
   // clear all matches
   iCnt := FMatches.Count; // is always the first time amount
