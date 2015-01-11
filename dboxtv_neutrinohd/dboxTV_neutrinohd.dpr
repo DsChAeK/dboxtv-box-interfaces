@@ -295,8 +295,8 @@ end;
  ******************************************************************************)
 function Check (BoxID : Integer):ByteBool; stdcall;
 var
-  sTime : ShortString;
-  sSettings : ShortString;
+  sTime : String;
+  sSettings : String;
 begin
   Result := true;
 
@@ -367,8 +367,11 @@ end;
  *   Status : time_t as string
  ******************************************************************************)
 function GetTime(BoxID : Integer):ShortString; stdcall;
+var
+  sTemp : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_TIME);
+  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_TIME);
+  Result := sTemp;
 end;
 
 (*******************************************************************************
@@ -401,7 +404,7 @@ end;
  ******************************************************************************)
 function GetSPTSMode(BoxID : Integer):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS);
 
@@ -420,7 +423,7 @@ end;
  ******************************************************************************)
 function SetSPTSMode(BoxID : Integer; OnOff : ByteBool):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   if OnOff then
     sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS_ON)
@@ -442,7 +445,7 @@ end;
  ******************************************************************************)
 function SetMessageOnTv(BoxID : Integer; Msg : ShortString):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_MESSAGE, TAG_DATA, Msg);
 
@@ -498,8 +501,11 @@ end;
  *   Status : true = ok
  ******************************************************************************)
 function GetBoxMode(BoxID : Integer):ShortString; stdcall;
+var
+  sTemp : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
+  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
+  Result := sTemp;
 end;
 
 (*******************************************************************************
@@ -511,7 +517,7 @@ end;
  ******************************************************************************)
 function SetBoxMode(BoxID : Integer; Mode : ShortString):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SETMODE, TAG_DATA, Mode);
 
@@ -617,6 +623,7 @@ begin
   // execute regex
   iMatchCount := RegEx.Execute(PChar(sPids));
 
+try
   // for each line (line count not known, so just loop long enough)
   for i:=0 to 20 do begin
     // VPID
@@ -652,7 +659,8 @@ begin
     // next regex result
     RegEx.ExecuteNext;
   end;
-
+except
+end;
   // eliminate last sign
   Delete(MyStreamInfo.sAPID, Length(MyStreamInfo.sAPID), 1);
   Delete(MyStreamInfo.sALANG, Length(MyStreamInfo.sALANG), 1);
@@ -772,7 +780,7 @@ begin
   // take Key as it is
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RCEM, TAG_DATA, Key);
   Sleep(100); // wait
-  
+
   if sTemp = 'ok' then
     Result := true
   else
@@ -802,7 +810,7 @@ begin
 
   // if no subchannel, or no alternative zap method
   if not IsSubChannel or not UseAltSubChannelZap then begin
-    // zsp the normal way
+    // zap the normal way
     sTemp := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO_CHAN, TAG_DATA, ChannelID);
   end
   else begin
@@ -874,8 +882,11 @@ end;
  *   channel id
  ******************************************************************************)
 function GetCurrentChannelID(BoxID : Integer):ShortString;  stdcall;
+var
+  sTemp : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO);
+  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO);
+  Result := sTemp;
 end;
 
 (*******************************************************************************
@@ -976,7 +987,7 @@ end;
  *   -> use bouquets.xml and services.xml
  *   -> extract all channeldata from bouquets.xml (URL_DBOX_GETBOUQUETSXML)
  *   -> extract servicetyp (radio/tv) from services.xml (URL_DBOX_GETSERVICESXML)
- *
+ *    
  * RGW:
  *   bouquet count
  ******************************************************************************)

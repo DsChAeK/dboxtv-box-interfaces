@@ -295,8 +295,8 @@ end;
  ******************************************************************************)
 function Check (BoxID : Integer):ByteBool; stdcall;
 var
-  sTime : ShortString;
-  sSettings : ShortString;
+  sTime : String;
+  sSettings : String;
 begin
   Result := true;
 
@@ -367,8 +367,11 @@ end;
  *   Status : time_t as string
  ******************************************************************************)
 function GetTime(BoxID : Integer):ShortString; stdcall;
+var
+  sTemp : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_TIME);
+  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_TIME);
+  Result := sTemp;
 end;
 
 (*******************************************************************************
@@ -401,7 +404,7 @@ end;
  ******************************************************************************)
 function GetSPTSMode(BoxID : Integer):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS);
 
@@ -420,7 +423,7 @@ end;
  ******************************************************************************)
 function SetSPTSMode(BoxID : Integer; OnOff : ByteBool):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   if OnOff then
     sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS_ON)
@@ -442,7 +445,7 @@ end;
  ******************************************************************************)
 function SetMessageOnTv(BoxID : Integer; Msg : ShortString):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_MESSAGE, TAG_DATA, Msg);
 
@@ -498,8 +501,11 @@ end;
  *   Status : true = ok
  ******************************************************************************)
 function GetBoxMode(BoxID : Integer):ShortString; stdcall;
+var
+  sTemp : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
+  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
+  Result := sTemp;
 end;
 
 (*******************************************************************************
@@ -511,7 +517,7 @@ end;
  ******************************************************************************)
 function SetBoxMode(BoxID : Integer; Mode : ShortString):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SETMODE, TAG_DATA, Mode);
 
@@ -609,6 +615,7 @@ begin
   // execute regex
   iMatchCount := RegEx.Execute(PChar(sPids));
 
+try
   // for each line (line count not known, so just loop long enough)
   for i:=0 to 20 do begin
     // VPID
@@ -644,7 +651,8 @@ begin
     // next regex result
     RegEx.ExecuteNext;
   end;
-
+except
+end;
   // eliminate last sign
   Delete(MyStreamInfo.sAPID, Length(MyStreamInfo.sAPID), 1);
   Delete(MyStreamInfo.sALANG, Length(MyStreamInfo.sALANG), 1);
@@ -883,8 +891,11 @@ end;
  *   channel id
  ******************************************************************************)
 function GetCurrentChannelID(BoxID : Integer):ShortString;  stdcall;
+var
+  sTemp : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO);
+  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_ZAPTO);
+  Result := sTemp;
 end;
 
 (*******************************************************************************
@@ -1130,13 +1141,16 @@ try
 
       // set channel data
       if RegExChannels.GetMatch(0) <> '' then begin
-        // tsid has to be without a leading '0' in channel id!!!
-        sTemp := RegExChannels.GetMatch(3);
-        if sTemp[1] = '0' then
+        try
+          // tsid has to be without a leading '0' in channel id!!!
+          sTemp := RegExChannels.GetMatch(3);
+          if sTemp[1] = '0' then
           sTemp := Copy(sTemp, 2, Length(sTemp));
 
-        // build channel id
-        Channel.sChannelId := sTemp+RegExChannels.GetMatch(4)+RegExChannels.GetMatch(1);
+          // build channel id
+          Channel.sChannelId := sTemp+RegExChannels.GetMatch(4)+RegExChannels.GetMatch(1);
+        except
+        end;
 
         // set indizes
         Channel.BouquetIndex := iInxBouquet;

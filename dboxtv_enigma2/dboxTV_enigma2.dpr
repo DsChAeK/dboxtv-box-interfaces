@@ -296,7 +296,6 @@ end;
 function Check (BoxID : Integer):ByteBool; stdcall;
 var
   sTime : String;
-  sSettings : ShortString;
 begin
   Result := true;
 
@@ -440,7 +439,7 @@ end;
  ******************************************************************************)
 function GetSPTSMode(BoxID : Integer):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   (*sTemp := HttpClient.GetURL(BoxID, URL_DBOX_SPTS);
 
@@ -461,7 +460,7 @@ end;
  ******************************************************************************)
 function SetSPTSMode(BoxID : Integer; OnOff : ByteBool):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
 (*
   if OnOff then
@@ -486,7 +485,7 @@ end;
  ******************************************************************************)
 function SetMessageOnTv(BoxID : Integer; Msg : ShortString):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   sTemp := HttpClient.GetURL(BoxID, URL_DBOX_MESSAGE, TAG_DATA, Msg);
 
@@ -505,7 +504,7 @@ end;
  ******************************************************************************)
 function SetRCLock(BoxID : Integer):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
 (*  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RC_LOCK);
 
@@ -526,7 +525,7 @@ end;
  ******************************************************************************)
 function SetRCUnlock(BoxID : Integer):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
 (*  sTemp := HttpClient.GetURL(BoxID, URL_DBOX_RC_UNLOCK);
 
@@ -619,7 +618,7 @@ end;
  ******************************************************************************)
 function SetBoxMode(BoxID : Integer; Mode : ShortString):ByteBool; stdcall;
 var
-  sTemp : ShortString;
+  sTemp : String;
 begin
   if Mode = 'tv' then begin
     Mode := '377';
