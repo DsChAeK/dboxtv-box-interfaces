@@ -226,7 +226,6 @@ begin
   // free url
   StrDispose(APChar);
 
-  //Result := PChar(sHttpAnswer);
   Result := PChar(sHttpAnswer);
 end;
 
