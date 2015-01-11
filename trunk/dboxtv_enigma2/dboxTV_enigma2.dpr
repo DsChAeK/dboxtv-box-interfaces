@@ -2,7 +2,7 @@
 //   Author:        DsChAeK
 //   URL:           http://www.dschaek.de
 //   Project:       dboxTV_enigma2.dll - a box interface dll for dboxTV
-//   Version:       2.0
+//   Version:       1.0
 //
 //   Function:      DLL functions
 //
@@ -21,7 +21,7 @@
 //
 // ##############################################################################################
 //
-// Info: This DLL enables the communication between dboxTV and NeutrinoHD.
+// Info: This DLL enables the communication between dboxTV and Enigma2 (VU+).
 //       It may be used as a template for other box interfaces.
 //       This DLL provides functionality for the current selected box in dboxTV!
 //       All transfered data types are compatible with other languages, so you
@@ -34,7 +34,7 @@
 //          2. DLL function calls GetURL(URL_DBOX_ZAPTO) and returns the data to dboxTV
 //          3. dboxTV uses the data in context
 //
-//       All functions were created in relationship to neutrino/neutrinoHD so there
+//       All functions were created in relationship to Enigma2 so there
 //       is a high possibility to miss a function or parameter which is needed for
 //       other interfaces and future use.
 //       If you miss something plz send me an email to admin@dschaek.de or visit
@@ -96,7 +96,7 @@
 //             FktGetURL_EPG is needed.
 //            -dboxTV telnet component is asynchron, so you have to use a delay!
 //
-// Files:    -dboxTV_neutrinohd.dpr -> all dll functions and export
+// Files:    -dboxTV_enigma2.dpr    -> all dll functions and export
 //           -UntURL.pas            -> box specific urls
 //           -UntHelpers.pas        -> useful string handling functions
 //           -UntHttpClient.pas     -> http request handling using dboxTV functions
@@ -128,7 +128,7 @@ uses
 // ##############################################################################################
 const
   AUTHOR  = 'DsChAeK';        // author info for dboxtv about box
-  VERSION = 'v2.0';           // version info for dboxtv about box
+  VERSION = 'v1.0';           // version info for dboxtv about box
   BOXNAME = 'VU+ Enigma2';    // boxname info for dboxtv display
 
 // ##############################################################################################
@@ -295,7 +295,7 @@ end;
  ******************************************************************************)
 function Check (BoxID : Integer):ByteBool; stdcall;
 var
-  sTime : ShortString;
+  sTime : String;
   sSettings : ShortString;
 begin
   Result := true;
@@ -311,8 +311,6 @@ begin
   else begin
     Result := true;
   end;
-
-  exit;
 end;
 
 (*******************************************************************************
@@ -551,7 +549,8 @@ function GetBoxMode(BoxID : Integer):ShortString; stdcall;
 var
   Data : String;
 begin
-  Result := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
+
+  Data := HttpClient.GetURL(BoxID, URL_DBOX_GETMODE);
 
   // ### extract box mode ###
   (*
@@ -590,7 +589,6 @@ begin
                         <e2vpid>N/A</e2vpid>
         $1 [448 - 450]: N/A
   *)
-
   try
     RegEx.SetRegEx('<e2vpid>(.*?)</e2vpid>', true); // S = one line
     RegEx.Execute(PChar(Data));
@@ -608,6 +606,8 @@ begin
   except
     Result := 'unknown';
   end;
+
+  Result := 'tv';
 end;
 
 (*******************************************************************************
@@ -831,7 +831,7 @@ end;
 (*******************************************************************************
  * INFO:
  *   call a rcem key for remote controlling -> URL_DBOX_RCEM -> 'ok'
- *   dboxTV sends neutrino KEY strings (e.g. 'KEY_HELP'), you may have to adapt
+ *   dboxTV sends enigma2 KEY strings (e.g. 'KEY_HELP'), you may have to adapt
  *   this for other boxes/images -> have a look in UntDataDLL.pas
  *
  * PARAMS:
