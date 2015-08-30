@@ -5,7 +5,8 @@ This DLL provides functionality for the current selected box in dboxTV!
 All transfered data types are compatible with other languages, so you
 don't have to use delphi and this code! All functions use stdcall!
 
-Developer Forum: http://forum.dschaek.de/thread.php?threadid=463
+Developer Forum: http://forum.dschaek.de/board.php?boardid=30
 
 Website: http://www.dschaek.de
+
 
